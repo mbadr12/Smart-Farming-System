@@ -1,0 +1,34 @@
+-> ADC
+-> we have 3 ADCs every ADC has 16 external channel and ADC1 has three internal channels(temp, Vbat, nc)
+-> the 15 channels can be regular or injected channels and injected has priority over regular
+-> A regular group conversion can be interrupted by an injected trigger.
+-> the injected channels mangement:
+	-> triggered injection: by SW trigger or external trigger
+	-> Auto injection: the channels in the injected group are automatically converted after the regular group of channels
+-> the ADC clock is shared by all 3 ADCs so it will be taken in config.h
+-> every ADC has Analog watchdog that fires if the input of a channel is over the high threshold or lower than the low one.
+-> The high and low threshold and channels guarded by watchdog is configured by user
+configurations:
+-> choose ADC
+-> Choose channel
+-> modes (Single, continuous, Scan, discontinuous)
+		-> Single conversion mode: used to do one conversion(regular or injected)
+		-> continuous mode: the ADC start a new conversion as soon as it finishes one(used for regular mode only)
+		-> The only state that the injected mode is working in the continuous mode if and only if the injected channel
+			is configured to be converted automatically
+		-> Scan mode: used to scan a group of channels(injected or regular)
+			if the cont bit is set the conversion won't stop at the last channel
+		-> discontinuous mode: used for regular and injected channels and it starts by external trigger
+			-> regular channels: it can convert up to 8 channels per trigger and at first trigger it converts n channels
+				and in the next trigger it converts the next n and when it finish all channels it starts from the first
+				There is interrupt generated at the end of every conversion
+			-> injected channels: it can convert up to 4 channels per trigger and like the regular in conversion but it
+				generats interrupt at the end of every sequence of conversion
+				discontinuous mode can't work with auto injected mode, you must choose one mode
+			-> you must use discontinuous mode for one group at a time (regular or injected)
+->channel selection(regular, injected)
+		-> regular group: is composed up to 16 conversions
+		-> injected group: is composed up to 4 conversions
+-> resolution:(6 bit : 12 bit : 2)
+-> Result alignment(left, right)
+-> conversion source(SW, external trigger)

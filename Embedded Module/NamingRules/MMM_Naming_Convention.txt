@@ -1,0 +1,24 @@
+/*MMM Naming Convention*/
+
+FolderName: Gpio
+FileName  : Gpio_Program.c
+FuncName  : Gpio_SetPinValue(u8 Copy_PortNum);
+LocalVar  : u8 Local_VariableName
+GlobalVar :	u8 Gpio_VariableName
+ConstMacro: MODULENAME_MACRO_OBJECT
+FuncMacro : ModuleName_MacroFunctionName(Parameter)
+Def		  : typedef <primitive-type> ModuleName_TypeName_t; (postfix with "_t") i.e. Gpio_RegDef_t
+typedef struct	  :
+{
+   <AnyType> FirstMember;
+   <AnyType> SecondMember;
+   <AnyType> ThirdMember;
+   <AnyType> FourthMember;
+}Adc_Config_t
+
+typedef enum:
+{
+   MODULENAME_FIRST_MEMBER = 0,
+   MODULENAME_SECOND_MEMBER,
+   MODULENAME_THIRD_MEMBER
+}Gpio_Port_t

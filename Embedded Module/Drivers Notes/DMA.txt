@@ -1,0 +1,68 @@
+-> DMA -> Direct Memory Access (Master of transfer)
+-> We have 2 DMAs, every DMA has 8 Stream, every Stream has 8 channels/requests
+-> every Stream has 4 word(32bit) Fifo
+-> priority between stream can be configured by software with four levels and if two streams have the same SW priority
+   it returns to HW priority (0 has pariority over 1)
+-> DMA2 supports SW trigger for mem to mem transfer
+-> the number of data to be transfered can be managed by DMA(max 65535) or by peripheral(signaling the end of trans by HW)
+-> in fifo mode the source and destnation width are independant
+-> Support incremental burst transfers of 4, 8 or 16 beats
+-> DMA transfer consist of 3 operations:
+   1- Loading from the source(mem or peripheral)
+   2- load the data to destnation
+   3- post increment of number of transactions
+-> In case of peripheral control:
+   After an event the peripheral send request to DMA and DMA serve the request depending on the configurations
+   At the moment the DMA access the peripheral, it send Ack to peripheral, it releases the request
+-> DMA has pariority over the proccessor to Access the memory
+-> The transfer completion is dependent on the remaining data in FIFO to be transferred into memory only in the
+   case of peripheral-to-memory mode. This condition is not applicable in memory-to-peripheral mode.
+-> The circular mode is forbidden in the peripheral flow controller mode.
+-> DMA Configurations
+   1- DMA select(DMA1,DMA2)
+   2- Stream select(Stream0 ---> Stream7)
+   3- Channel select(Channel0 ---> Channel7)
+   4- Stream mode(FIFO mode,Direct mode)
+		in FIFO mode: you can choose the threshold of the Fifo 1/4, 1/2, 3/4 of the fifo size
+		Direct mode: the data is taken directly to distnation
+   5- Channel mode(regular,Double Buffer)
+   
+		Double Buffer: in this mode it has two memory pointers the DMA controller swaps from one memory target to another 
+		at each end of transaction and can be used in the two directions but the circuler mode is activated automatically
+   6- transfer direction(mem-to-mem,mem-to-perph,perph-to-mem)
+		perph-to-mem: waiting for peripheral request, the stream intiates transfer from source to fill FIFO
+					  when the fifo reach the threshold, it stores the data to destnation
+		mem-to-perph: waiting for peripheral request, the stream intiates transfer from source to fill FIFO
+					  when the fifo reach the threshold, it stores the data to destnation
+		mem-to-mem: -> When memory-to-memory mode is used, the circular and direct modes are not allowed.
+					-> Only the DMA2 controller is able to perform memory-to-memory transfers.
+   7- stream priority(very high, high, medium, low)
+   8- SRC-DEST State(SRCINC-DESTINC, SRCFIXED-DESTINC, SRCINC-DESTFIXED, SRCFIXED-DESTFIXED)
+		-> Disabling the increment mode is useful when the peripheral source or destination data is
+		   accessed through a single register.
+		-> if inc is enabled it increments by step at each transaction
+		-> Step depends on the Data width
+   9- Data Width (8-bit, 16-bit, 32-bit)
+		-> we have Psize: to program the source size, msize: to program destnation size(for fifo mode)
+		-> for fifo mode the number of bytes to be transfered is controlled by psize
+		-> in direct mode: the source and dest size are programed by psize
+		-> if the bit pincos=1 the size is 4 byte
+   10- transfer type(single transfer, circular)
+		-> circular: used to contnious transfer
+   11- Flow controller(The DMA controller, The peripheral source or destination)
+		-> The DMA controller: used when the number of transactions is known
+		-> the peripheral: used when the peripheral has the ability of signalling end of transaction
+   12- Transfer(single - Burst)
+		-> In single mode the DMA works with the Cpu in transfer
+		-> In burst mode the DMA block the cpu to end of its transfer
+-> Best scenarios of transaction:
+		-> mem-to-mem ---> you must work in fifo mode
+		-> mem-to-perph ---> the best case is direct mode to make sure no data is lost
+		-> perph-to-mem ---> it's advisable to use fifo with burst
+-> Stream configuration procedure:
+	1- disable the stream by reseting EN bit
+	2- polling in the EN bit to make sure it has been 0
+	3- Configure the total number of date to be transfered in case of DMA controller
+	4- Select the DMA channel
+	5- configure the stream priority, FIFO usage, Data trans direction, and mode
+	6- Activate the DMA
