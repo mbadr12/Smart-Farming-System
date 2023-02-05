@@ -12,6 +12,10 @@
  *********************************************************************************************************************/
 #ifndef STD_TYPES_H_
 #define STD_TYPES_H_
+/**********************************************************************************************************************
+ *  INCLUDES
+ *********************************************************************************************************************/
+#include "Platform_Types.h"
 
 /**********************************************************************************************************************
  *  GLOBAL CONSTANT MACROS
@@ -32,9 +36,18 @@ typedef enum
 {
 	SEND_CHAR=0,
 	SEND_STRING,
+	SEND_BUFFER,
 	RECEIVE_CHAR,
-	RECEIVE_STRING
+	RECEIVE_BUFFER,
+	SINGLE_CONVERSION=0,
+	CHAIN_CONVERSION
 }ISR_Src;
+
+typedef enum
+{
+	FALSE=0,
+	TRUE
+}Bool_t;
 
 typedef enum
 {
@@ -43,7 +56,9 @@ typedef enum
 	E_NULL_POINTER,
 	E_WRONG_OPTION,
 	E_BUSY_FUNC,
-	E_TIME_OUT
+	E_TIME_OUT,
+	E_NO_RESPOSE,
+	E_CONNECTION_FAILED
 }ErrorState_t;
 
 #endif /* STD_TYPES_H_ */

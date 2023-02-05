@@ -57,7 +57,7 @@
 
 #define TC					6						/*Transmission complete*/
 
-#define USART_TIME_OUT		(CLK_FRequancy/1000)*5	/*5ms time out*/
+#define USART_TIME_OUT		(u32)((CLK_FRequancy/1000)*5)	/*5ms time out*/
 
  
 /**********************************************************************************************************************

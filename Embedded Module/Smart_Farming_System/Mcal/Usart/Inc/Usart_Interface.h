@@ -90,6 +90,35 @@ ErrorState_t Usart_SendStringSynch(Usart_Number_t Copy_UsartNum, char* Copy_Stri
 ErrorState_t Usart_SendStringASynch(Usart_Number_t Copy_UsartNum, char* Copy_String, void (*Copy_NotificationFunc)(void));
 
 /******************************************************************************
+ * \Syntax          : ErrorState_t Usart_SendBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize)
+ * \Description     : Send a Buffer through USART in Synchronous way
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   USART Number you want to Send Buffer by
+ * 					  Copy_BufferSize The size of received Buffer
+ * 					  Copy_Buffer	  Buffer to be Sent by USART
+ * \Parameters (out): None
+ * \Return value    : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Usart_SendBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferLen);
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Usart_SendBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ * \Description     : Send a Buffer through USART in ASynchronous way
+ *
+ * \Sync\Async      : ASynchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   USART Number you want to Send Buffer by
+ * 					  Copy_BufferSize The size of received Buffer
+ * 					  (*Copy_NotificationFunc)(void) Pointer to Function hold the notification of Send
+ * 					  Copy_Buffer	  Buffer to be Sent by USART
+ * \Parameters (out): None
+ * \Return value    : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Usart_SendBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferLen, void (*Copy_NotificationFunc)(void));
+
+/******************************************************************************
  * \Syntax          : ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data)
  * \Description     : Receive a character through USART in Synchronous way
  *
@@ -99,7 +128,7 @@ ErrorState_t Usart_SendStringASynch(Usart_Number_t Copy_UsartNum, char* Copy_Str
  * \Parameters (out): Copy_Data		  Data to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data);
+ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Data);
 
 /******************************************************************************
  * \Syntax          : ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data)
@@ -115,7 +144,7 @@ ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data
 ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data, void (*Copy_NotificationFunc)(void));
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u8 Copy_BufferSize)
+ * \Syntax          : ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize)
  * \Description     : Receive a Buffer through USART in Synchronous way
  *
  * \Sync\Async      : Synchronous
@@ -125,10 +154,10 @@ ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Dat
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u8 Copy_BufferSize);
+ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferSize);
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u8 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ * \Syntax          : ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
  * \Description     : Receive a Buffer through USART in ASynchronous way
  *
  * \Sync\Async      : ASynchronous
@@ -139,7 +168,7 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_B
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u8 Copy_BufferSize, void (*Copy_NotificationFunc)(void));
+ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void));
  
 #endif  /* USART_INTERFACE_H */
 

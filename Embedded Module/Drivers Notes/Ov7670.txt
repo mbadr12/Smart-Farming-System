@@ -1,0 +1,26 @@
+-> Camera module:
+-> To set up the configuration of Camera you must first set the communication between controller and the camera
+-> so you need to Know what is the SCCB(Serial Camera Control Bus):
+-> Specs:
+-> 1- Wired		2- serial		3- Synchronous		4- master/slave		5- half duplex
+-> it's 2-wire serial bus that allow one master and one slave
+-> The Camera always acts as a slave
+-> Pin functions for slave device:
+-> SIO_C input: Active high and sending Data is done when it low , SIO_D I/O
+-> so we can see that the SCCB can configured by using I2C by:
+-> we need a function that send the slave address then reg address then data
+-> from data sheet the slave address for write is 0x42 and for read 0x43
+-> so what is the configurations of Camera:
+		1- Choose output format (COM7[2][0],COM15[5][4]) we need one of two format
+			-> (YUV 4:2:2)(00x0)		-> RGB565(1001)	
+		2- Choose resolution
+		3- Frame rate timing:
+			1- clock pre-scaler:
+					if you want to use external clk(set_bit(CLK RC, bit 6))
+					else use DBLV[6][7] for PLL and CLKRC[5:0] for pre-scaler
+					F(internal clk)=fclk*PLL/(2*pre-scaler+1)
+-> The important registers for us:
+		1- COM3 bit 2 -> used for enable scaling
+		2- CLK RC: bit 6 -> used for enable external clock
+		3- com7 bits[5->0] the output format
+		4- 

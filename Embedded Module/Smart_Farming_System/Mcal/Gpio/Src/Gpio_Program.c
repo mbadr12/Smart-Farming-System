@@ -70,12 +70,12 @@ ErrorState_t Gpio_PinInit(const Gpio_PinConfig_t *Copy_PinConfig)
 			if(Copy_PinConfig->Mode == GPIO_PIN_ALTFunc)
 			{
 				/*4- Set The Alternative Function Option If the Pin Mode Alternative Function*/
-				if(Copy_PinConfig->AlternateFuncOption<8 && Copy_PinConfig->AlternateFuncOption>=0)
+				if(Copy_PinConfig->PinNum<8 && Copy_PinConfig->PinNum>=0)
 				{
 					Gpio_PortArr[Copy_PinConfig->Port]->AFR[0] &= ~(ALT_FUNC_BIT_MASK << (4*Copy_PinConfig->PinNum));
 					Gpio_PortArr[Copy_PinConfig->Port]->AFR[0] |= Copy_PinConfig->AlternateFuncOption<<(4*Copy_PinConfig->PinNum);
 				}
-				else if(Copy_PinConfig->AlternateFuncOption<16 && Copy_PinConfig->AlternateFuncOption>7)
+				else if(Copy_PinConfig->PinNum<16 && Copy_PinConfig->PinNum>7)
 				{
 					Gpio_PortArr[Copy_PinConfig->Port]->AFR[1] &= ~(ALT_FUNC_BIT_MASK << (4*Copy_PinConfig->PinNum));
 					Gpio_PortArr[Copy_PinConfig->Port]->AFR[1] |= (Copy_PinConfig->AlternateFuncOption-8)<<(4*Copy_PinConfig->PinNum);

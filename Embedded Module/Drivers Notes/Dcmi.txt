@@ -1,0 +1,15 @@
+-> DCMI(Digital Camera Interface)
+-> it's a synchronous parallel interface
+-> support Three Formats(YCbCr 4:2:2, RGB 565, JPEG)
+-> 
+
+-> Configurations
+	1- synchronousing(HW,embedded)
+		HW: using HSYNC, VSYNC
+		embedded: using code
+	2- DataBits number(8 bit : 14 bit : 2):
+	3- Capture mode(snap shot, continious)
+	4- Data Format(YCbCr 4:2:2, RGB 565, JPEG):
+		YCbCr 4:2:2: 1.25 pixels per words
+		RGB 565: 2 pixels per word
+	5- Synchronisation polarity(HSYNC , V)

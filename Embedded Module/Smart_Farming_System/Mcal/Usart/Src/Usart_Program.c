@@ -37,7 +37,7 @@ static char *Usart_pData[USART_NUM]={NULL};
 
 static ISR_Src Usart_ISRSource[USART_NUM]={SEND_CHAR};
 
-static u8 Usart_BufferSize=0;
+static u16 Usart_BufferSize=0;
 
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
@@ -226,7 +226,7 @@ ErrorState_t Usart_SendStringSynch(Usart_Number_t Copy_UsartNum, char* Copy_Stri
 			/*Send the string to its end*/
 			while(Copy_String[Local_Index] != '\0')
 			{
-				Usart_SendCharSynch(Copy_UsartNum, Copy_String[Local_Index]);
+				Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, Copy_String[Local_Index]);
 				Local_Index++;
 			}
 		}
@@ -284,6 +284,97 @@ ErrorState_t Usart_SendStringASynch(Usart_Number_t Copy_UsartNum, char* Copy_Str
 }
 
 /******************************************************************************
+ * \Syntax          : ErrorState_t Usart_SendBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize)
+ * \Description     : Send a Buffer through USART in Synchronous way
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   USART Number you want to Send Buffer by
+ * 					  Copy_BufferSize The size of received Buffer
+ * 					  Copy_Buffer	  Buffer to be Sent by USART
+ * \Parameters (out): None
+ * \Return value    : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Usart_SendBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferLen)
+{
+	ErrorState_t Local_ErrorState=E_OK;
+	u8 Local_Index=0;
+	if(Copy_Buffer == NULL)
+	{
+		Local_ErrorState=E_NULL_POINTER;
+	}
+	else
+	{
+		if(Copy_UsartNum >= USART_NUM)
+		{
+			Local_ErrorState = E_WRONG_OPTION;
+		}
+		else
+		{
+			/*Send the Buffer to its end*/
+			for(Local_Index=0; Local_Index<Copy_BufferLen; Local_Index++)
+			{
+				Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, Copy_Buffer[Local_Index]);
+
+			}
+		}
+	}
+	return Local_ErrorState;
+}
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Usart_SendBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ * \Description     : Send a Buffer through USART in ASynchronous way
+ *
+ * \Sync\Async      : ASynchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   USART Number you want to Send Buffer by
+ * 					  Copy_BufferSize The size of received Buffer
+ * 					  (*Copy_NotificationFunc)(void) Pointer to Function hold the notification of Send
+ * 					  Copy_Buffer	  Buffer to be Sent by USART
+ * \Parameters (out): None
+ * \Return value    : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Usart_SendBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferLen, void (*Copy_NotificationFunc)(void))
+{
+	ErrorState_t Local_ErrorState=E_OK;
+	if(Copy_UsartNum >= USART_NUM)
+	{
+		Local_ErrorState = E_WRONG_OPTION;
+	}
+	else
+	{
+		/*Check if USART Idle or not*/
+		if(Usart_State[Copy_UsartNum] == IDLE)
+		{
+			if((Copy_NotificationFunc == NULL) || (Copy_Buffer == NULL))
+			{
+				Local_ErrorState=E_NULL_POINTER;
+			}
+			else
+			{
+				/*Make the peripheral busy*/
+				Usart_State[Copy_UsartNum] = BUSY;
+				/*Make the ISR source send Buffer*/
+				Usart_ISRSource[Copy_UsartNum]=SEND_BUFFER;
+				/*Take the Buffer size*/
+				Usart_BufferSize=Copy_BufferLen;
+				/*Pass the Data and call Back Function to Global Variables*/
+				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
+				Usart_pData[Copy_UsartNum]=Copy_Buffer;
+				/*USART Data Empty Interrupt Enable*/
+				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
+			}
+		}
+		else
+		{
+			Local_ErrorState=E_BUSY_FUNC;
+		}
+	}
+	return Local_ErrorState;
+}
+
+/******************************************************************************
  * \Syntax          : ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data)
  * \Description     : Receive a character through USART in Synchronous way
  *
@@ -293,7 +384,7 @@ ErrorState_t Usart_SendStringASynch(Usart_Number_t Copy_UsartNum, char* Copy_Str
  * \Parameters (out): Copy_Data		  Data to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Data)
+ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Data)
 {
 	u32 Local_Counter=0;
 	ErrorState_t Local_ErrorState=E_OK;
@@ -393,7 +484,7 @@ ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Dat
 }
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u8 Copy_BufferSize)
+ * \Syntax          : ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize)
  * \Description     : Receive a Buffer through USART in Synchronous way
  *
  * \Sync\Async      : Synchronous
@@ -403,7 +494,7 @@ ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Dat
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u8 Copy_BufferSize)
+ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferSize)
 {
 	ErrorState_t Local_ErrorState=E_OK;
 	u8 Local_Index=0;
@@ -424,7 +515,7 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_B
 			{
 				for(Local_Index=0 ; Local_Index < Copy_BufferSize ; Local_Index++)
 				{
-					Usart_ReceiveCharSynch(Copy_UsartNum, &Copy_Buffer[Local_Index]);
+					Local_ErrorState=Usart_ReceiveCharSynch(Copy_UsartNum, &Copy_Buffer[Local_Index]);
 				}
 				Copy_Buffer[Copy_BufferSize]='\0';
 			}
@@ -439,7 +530,7 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_B
 }
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u8 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ * \Syntax          : ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
  * \Description     : Receive a Buffer through USART in ASynchronous way
  *
  * \Sync\Async      : ASynchronous
@@ -450,41 +541,41 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, char* Copy_B
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u8 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
 {
 	ErrorState_t Local_ErrorState=E_OK;
 	if(Copy_UsartNum >= USART_NUM)
+	{
+		Local_ErrorState = E_WRONG_OPTION;
+	}
+	else
+	{
+		/*Check if USART Idle or not*/
+		if(Usart_State[Copy_UsartNum] == IDLE)
 		{
-			Local_ErrorState = E_WRONG_OPTION;
-		}
-		else
-		{
-			/*Check if USART Idle or not*/
-			if(Usart_State[Copy_UsartNum] == IDLE)
+			if((Copy_Buffer == NULL) || (Copy_NotificationFunc == NULL))
 			{
-				if((Copy_Buffer == NULL) || (Copy_NotificationFunc == NULL))
-				{
-					Local_ErrorState=E_NULL_POINTER;
-				}
-				else
-				{
-					/*Make the peripheral Busy*/
-					Usart_State[Copy_UsartNum] = BUSY;
-					/*Make the ISR source Receive*/
-					Usart_ISRSource[Copy_UsartNum]=RECEIVE_STRING;
-					/*Pass the Data and call Back Function to Global Variables*/
-					Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
-					Usart_pData[Copy_UsartNum]=Copy_Buffer;
-					Usart_BufferSize=Copy_BufferSize;
-					/*USART RXNE interrupt Enable*/
-					Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
-				}
+				Local_ErrorState=E_NULL_POINTER;
 			}
 			else
 			{
-				Local_ErrorState=E_BUSY_FUNC;
+				/*Make the peripheral Busy*/
+				Usart_State[Copy_UsartNum] = BUSY;
+				/*Make the ISR source Receive*/
+				Usart_ISRSource[Copy_UsartNum]=RECEIVE_BUFFER;
+				/*Pass the Data and call Back Function to Global Variables*/
+				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
+				Usart_pData[Copy_UsartNum]=Copy_Buffer;
+				Usart_BufferSize=Copy_BufferSize;
+				/*USART RXNE interrupt Enable*/
+				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
 			}
 		}
+		else
+		{
+			Local_ErrorState=E_BUSY_FUNC;
+		}
+	}
 	return Local_ErrorState;	
 }
 
@@ -557,6 +648,25 @@ void USART1_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[USART_1] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[USART_1]->DR=Usart_pData[USART_1][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[USART_1]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[USART_1]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[USART_1] != NULL)
+			{
+				Usart_CallBackFunc[USART_1]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[USART_1] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -571,7 +681,7 @@ void USART1_IRQHandler(void)
 			Usart_CallBackFunc[USART_1]();
 		}
 	}
-	else if(Usart_ISRSource[USART_1] == RECEIVE_STRING)
+	else if(Usart_ISRSource[USART_1] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[USART_1][Local_Index] = Usart_Arr[USART_1]->DR;
@@ -638,6 +748,25 @@ void USART2_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[USART_2] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[USART_2]->DR=Usart_pData[USART_2][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[USART_2]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[USART_2]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[USART_2] != NULL)
+			{
+				Usart_CallBackFunc[USART_2]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[USART_2] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -652,7 +781,7 @@ void USART2_IRQHandler(void)
 			Usart_CallBackFunc[USART_2]();
 		}
 	}
-	else if(Usart_ISRSource[USART_2] == RECEIVE_STRING)
+	else if(Usart_ISRSource[USART_2] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[USART_2][Local_Index] = Usart_Arr[USART_2]->DR;
@@ -719,6 +848,25 @@ void USART3_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[USART_3] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[USART_3]->DR=Usart_pData[USART_3][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[USART_3]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[USART_3]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[USART_3] != NULL)
+			{
+				Usart_CallBackFunc[USART_3]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[USART_3] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -733,7 +881,7 @@ void USART3_IRQHandler(void)
 			Usart_CallBackFunc[USART_3]();
 		}
 	}
-	else if(Usart_ISRSource[USART_3] == RECEIVE_STRING)
+	else if(Usart_ISRSource[USART_3] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[USART_3][Local_Index] = Usart_Arr[USART_3]->DR;
@@ -800,6 +948,25 @@ void UART4_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[UART_4] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[UART_4]->DR=Usart_pData[UART_4][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[UART_4]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[UART_4]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[UART_4] != NULL)
+			{
+				Usart_CallBackFunc[UART_4]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[UART_4] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -814,7 +981,7 @@ void UART4_IRQHandler(void)
 			Usart_CallBackFunc[UART_4]();
 		}
 	}
-	else if(Usart_ISRSource[UART_4] == RECEIVE_STRING)
+	else if(Usart_ISRSource[UART_4] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[UART_4][Local_Index] = Usart_Arr[UART_4]->DR;
@@ -881,6 +1048,25 @@ void UART5_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[UART_5] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[UART_5]->DR=Usart_pData[UART_5][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[UART_5]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[UART_5]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[UART_5] != NULL)
+			{
+				Usart_CallBackFunc[UART_5]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[UART_5] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -895,7 +1081,7 @@ void UART5_IRQHandler(void)
 			Usart_CallBackFunc[UART_5]();
 		}
 	}
-	else if(Usart_ISRSource[UART_5] == RECEIVE_STRING)
+	else if(Usart_ISRSource[UART_5] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[UART_5][Local_Index] = Usart_Arr[UART_5]->DR;
@@ -962,6 +1148,25 @@ void USART6_IRQHandler(void)
 			Local_Index=0;
 		}
 	}
+	else if(Usart_ISRSource[USART_6] == SEND_BUFFER)
+	{
+		/*Send Data*/
+		Usart_Arr[USART_6]->DR=Usart_pData[USART_6][Local_Index];
+		Local_Index++;
+		if(Local_Index==Usart_BufferSize)
+		{
+			/*Make Peripheral idle*/
+			Usart_State[USART_6]=IDLE;
+			/*Disable USART Data Empty interrupt*/
+			Clr_Bit(Usart_Arr[USART_6]->CR1,TXEIE);
+			/*Invoke the call back function*/
+			if(Usart_CallBackFunc[USART_6] != NULL)
+			{
+				Usart_CallBackFunc[USART_6]();
+			}
+			Local_Index=0;
+		}
+	}
 	else if(Usart_ISRSource[USART_6] == RECEIVE_CHAR)
 	{
 		/*Receive Data*/
@@ -976,7 +1181,7 @@ void USART6_IRQHandler(void)
 			Usart_CallBackFunc[USART_6]();
 		}
 	}
-	else if(Usart_ISRSource[USART_6] == RECEIVE_STRING)
+	else if(Usart_ISRSource[USART_6] == RECEIVE_BUFFER)
 	{
 		/*Receive Data*/
 		Usart_pData[USART_6][Local_Index] = Usart_Arr[USART_6]->DR;
@@ -999,5 +1204,5 @@ void USART6_IRQHandler(void)
 }
 
 /**********************************************************************************************************************
- *  END OF FILE: FileName.c
+ *  END OF FILE: Usart_Program.c
  *********************************************************************************************************************/
