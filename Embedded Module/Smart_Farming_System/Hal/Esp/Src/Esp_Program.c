@@ -32,7 +32,7 @@ u8 Esp_NumStr[10]={0};
  *********************************************************************************************************************/
 
 /******************************************************************************
- * \Syntax          : Bool_t Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+ * \Syntax          : bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
  * \Description     : Validate the response of Esp to sent commands
  *
  * \Sync\Async      : Synchronous
@@ -40,12 +40,12 @@ u8 Esp_NumStr[10]={0};
  * \Parameters (in) : Copy_Response   The response of ESP
  * 					  Copy_Correct	   The correct response wanted
  * \Parameters (out): None
- * \Return value:   : Bool_t	TRUE
- * 								FALSE
+ * \Return value:   : bool	TRUE
+ * 							FALSE
  *******************************************************************************/
-Bool_t Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
 {
-	Bool_t Local_Result=TRUE;
+	bool Local_Result=TRUE;
 	u8 Local_Index=0;
 	u8 Local_ResponseLen=0;
 	while(Copy_Correct[Local_Index] != '\0')
@@ -112,7 +112,7 @@ void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
  *******************************************************************************/
 ErrorState_t Esp_Init(Esp_UsartNum Copy_UsartNum)
 {
-	Bool_t Local_Reply=TRUE;
+	bool Local_Reply=TRUE;
 	ErrorState_t Local_ErrorState=E_OK;
 	u8 Local_Counter=0;
 	Usart_config_t Esp_Usart={Copy_UsartNum,USART_ASYNCH,115200,USART_EIGHT_BIT,USART_PARITY_DISABLED,USART_ONE_STOP_BIT,USART_UC_TRANCEIVER};
@@ -164,7 +164,7 @@ ErrorState_t Esp_Init(Esp_UsartNum Copy_UsartNum)
 ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, char* Copy_Password)
 {
 	ErrorState_t Local_ErrorState=E_OK;
-	Bool_t Local_Reply=TRUE;
+	bool Local_Reply=TRUE;
 	u8 Local_Counter=0;
 	if(Copy_Username == NULL || Copy_Password == NULL)
 	{
@@ -218,7 +218,7 @@ ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, ch
 ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u8 Copy_PortNum)
 {
 	ErrorState_t Local_ErrorState=E_OK;
-	Bool_t Local_Reply=TRUE;
+	bool Local_Reply=TRUE;
 	u8 Local_Counter=0;
 	char Local_NumStr[6]={0};
 	if(Copy_ConnectionType == NULL || Copy_ServerIp == NULL)
@@ -275,7 +275,7 @@ ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, 
 ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
 {
 	ErrorState_t Local_ErrorState=E_OK;
-	Bool_t Local_Reply=TRUE;
+	bool Local_Reply=TRUE;
 	char Local_NumStr[6]={0};
 	if(Copy_Data == NULL)
 	{

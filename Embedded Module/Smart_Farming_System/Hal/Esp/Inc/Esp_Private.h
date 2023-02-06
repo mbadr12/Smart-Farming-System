@@ -26,7 +26,7 @@
  *********************************************************************************************************************/
 
 /******************************************************************************
- * \Syntax          : Bool_t Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+ * \Syntax          : bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
  * \Description     : Validate the response of Esp to sent commands
  *
  * \Sync\Async      : Synchronous
@@ -34,10 +34,10 @@
  * \Parameters (in) : Copy_Response   The response of ESP
  * 					  Copy_Correct	   The correct response wanted
  * \Parameters (out): None
- * \Return value:   : Bool_t	TRUE
- * 								FALSE
+ * \Return value:   : bool	TRUE
+ * 							FALSE
  *******************************************************************************/
-Bool_t Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct);
+bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct);
 
 /******************************************************************************
  * \Syntax          : void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
