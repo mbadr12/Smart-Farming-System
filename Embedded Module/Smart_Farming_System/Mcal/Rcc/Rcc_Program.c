@@ -14,13 +14,12 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "Lib/Std_Types.h"
-#include "Lib/Mcu_Hw.h"
-#include "Lib/BitMath.h"
+#include "STM32F446xx.h"
+#include "Bit_Math.h"
 
-#include "Include/Rcc_Interface.h"
-#include "Include/Rcc_Config.h"
-#include "Include/Rcc_Private.h"
+#include "Rcc_Interface.h"
+#include "Rcc_Config.h"
+#include "Rcc_Private.h"
 
 /**********************************************************************************************************************
  *  LOCAL DATA 
@@ -35,7 +34,7 @@
  *********************************************************************************************************************/
 
 /* TODO:: Handle non default initilization */
-static void RCC_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
+static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
     /* If user passes NULL leave the PLL at default rest value initialization (PLL General Clock Output = 96Mhz)*/
     if(Copy_PllConfigPtr == NULL_PTR) return;
 }
@@ -55,7 +54,7 @@ continue working while in sleep mode.
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, boolean Copy_LowPowerMode){
+ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, boolean Copy_LowPowerMode){
     ErroState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
     u8 Local_BitIndex = Copy_PeripheralId % 32;
@@ -122,7 +121,7 @@ ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, boolean Co
 * \Return value:   : ErroState_t
 *******************************************************************************/
 
-ErroState_t RCC_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
+ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
     ErroState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
     u8 Local_BitIndex = Copy_PeripheralId % 32;
@@ -179,7 +178,7 @@ ErroState_t RCC_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
 * \Return value:   : ErroState_t
 *******************************************************************************/
 
-ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, boolean Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
+ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, boolean Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
     ErroState_t Local_ErrorState = E_OK;
     if(Copy_ClkState > 1){
         Local_ErrorState = E_INVALID_PARAMETER;
@@ -298,7 +297,7 @@ ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, boolean Copy_ClkState, R
 * \Return value:   : ErroState_t
 *******************************************************************************/
 
-ErroState_t RCC_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
+ErroState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
 {
 	ErroState_t Local_ErrorSate = E_OK;
 
