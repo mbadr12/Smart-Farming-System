@@ -40,12 +40,12 @@
 
 /*Enable peripheral clock connected on AHB1 Bus*/
 
-Error_State_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, boolean Copy_PeripheralClkMode);
+Error_State_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_PeripheralClkMode);
 
 Error_State_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId);
 
 /*Set Clock Status (ON / OFF)*/
-Error_State_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, boolean Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr);
+Error_State_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr);
 
 /*Set System Clock Source*/
 Error_State_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType);

@@ -44,7 +44,7 @@ static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
  *********************************************************************************************************************/
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool_t Copy_LowPowerMode)        
+* \Syntax          : ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode)        
 * \Description     : Enable The clock to a peripheral and choose if in low power mode for the peripheral to
 continue working while in sleep mode.                                    
 *                                                                             
@@ -54,7 +54,7 @@ continue working while in sleep mode.
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool_t Copy_LowPowerMode){
+ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode){
     ErroState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
     u8 Local_BitIndex = Copy_PeripheralId % 32;
@@ -163,7 +163,7 @@ ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
 }
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool_t Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
+* \Syntax          : ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
 * \Description     : Turn on/off different clok sources. In stm32f429 I have 5 different clock sources:
                             1. HSI
                             2. HSE
@@ -178,7 +178,7 @@ ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
 * \Return value:   : ErroState_t
 *******************************************************************************/
 
-ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool_t Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
+ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
     ErroState_t Local_ErrorState = E_OK;
     if(Copy_ClkState > 1){
         Local_ErrorState = E_WRONG_OPTION;
