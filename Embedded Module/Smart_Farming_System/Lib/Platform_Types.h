@@ -14,6 +14,9 @@
 #ifndef PLATFORM_TYPES_H_
 #define PLATFORM_TYPES_H_
 
+#define WORD_LENGTH_BITS 32u
+#define WORD_LENGTH_BYTES 4u
+
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned long int u32;
