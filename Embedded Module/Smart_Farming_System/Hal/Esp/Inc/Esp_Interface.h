@@ -49,7 +49,7 @@ ErrorState_t Esp_Init(Esp_UsartNum Copy_UsartNum);
 ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, char* Copy_Password);
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u8 Copy_PortNum)
+ * \Syntax          : ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u16 Copy_PortNum)
  * \Description     : Connect the ESP module to Server
  *
  * \Sync\Async      : Synchronous
@@ -61,7 +61,7 @@ ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, ch
  * \Parameters (out): None
  * \Return value:   : ErrorState_t
  *******************************************************************************/
-ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u8 Copy_PortNum);
+ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u16 Copy_PortNum);
 
 /******************************************************************************
  * \Syntax          : ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)

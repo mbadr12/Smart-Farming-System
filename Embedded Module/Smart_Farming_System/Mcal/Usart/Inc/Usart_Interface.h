@@ -168,7 +168,7 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buf
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void));
+ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void));
  
 #endif  /* USART_INTERFACE_H */
 

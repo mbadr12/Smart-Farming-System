@@ -32,7 +32,7 @@ u8 Esp_NumStr[10]={0};
  *********************************************************************************************************************/
 
 /******************************************************************************
- * \Syntax          : bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+ * \Syntax          : static bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
  * \Description     : Validate the response of Esp to sent commands
  *
  * \Sync\Async      : Synchronous
@@ -43,7 +43,7 @@ u8 Esp_NumStr[10]={0};
  * \Return value:   : bool	TRUE
  * 							FALSE
  *******************************************************************************/
-bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+static bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
 {
 	bool Local_Result=TRUE;
 	u8 Local_Index=0;
@@ -68,7 +68,7 @@ bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
 }
 
 /******************************************************************************
- * \Syntax          : void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
+ * \Syntax          : static void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
  * \Description     : Convert number to string to send in UTF-8 format
  *
  * \Sync\Async      : Synchronous
@@ -77,7 +77,7 @@ bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
  * \Parameters (out): Copy_String	Converted number as string
  * \Return value:   : void
  *******************************************************************************/
-void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
+static void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
 {
 	u8 Local_Length = 0;
 	u8 Local_Counter=0;
@@ -94,6 +94,25 @@ void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
 		Copy_String[Local_Length-Local_Counter-1]=Local_Rest+'0';
 	}
 	Copy_String[Local_Length]='\0';
+}
+
+/******************************************************************************
+ * \Syntax          : static void Esp_Delay(u32 Copy_Delay)
+ * \Description     : generate delay
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_Delay   	Number to clock cycle wanted multiplied by 4
+ * \Parameters (out): Copy_String	Converted number as string
+ * \Return value:   : void
+ *******************************************************************************/
+static void Esp_Delay(u32 Copy_Delay)
+{
+	u32 Local_Counter=0;
+	for(Local_Counter=0; Local_Counter<Copy_Delay; Local_Counter++)
+	{
+		__asm volatile("NOP");
+	}
 }
 
 /**********************************************************************************************************************
@@ -123,19 +142,20 @@ ErrorState_t Esp_Init(Esp_UsartNum Copy_UsartNum)
 		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "ATE0\r\n");
 		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 11);
 		/*Test the response of chip*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT\r\n");
 		do
 		{
-			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 6);
-			Local_Reply=Esp_ValidateCmd(Esp_Response, "\r\nOK\r\n");
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT\r\n");
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 7);
+			Local_Reply=Esp_ValidateCmd(Esp_Response, ESP_REPLY);
+			Local_Counter++;
 		}while((Local_Reply == FALSE) && (Local_Counter < ESP_TIMEOUT));
 		if(Local_Counter != ESP_TIMEOUT)
 		{
 			/*Choose the mode as station*/
 			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CWMODE=1\r\n");
 			/*check for the configuration is done*/
-			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 6);
-			Local_Reply=Esp_ValidateCmd(Esp_Response, "\r\nOK\r\n");
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, ESP_REPLY_LEN);
+			Local_Reply=Esp_ValidateCmd(Esp_Response, ESP_REPLY);
 			if(Local_Reply == FALSE)
 			{
 				Local_ErrorState=E_NOK;
@@ -172,38 +192,48 @@ ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, ch
 	}
 	else
 	{
-		/*Disconnect from old Wi-Fi connection if any*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CWQAP\r\n");
-		/*send command to start connection*/
-		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 23);
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CWJAP_CUR=");
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		/*Enter the user name*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_Username);
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		/*Enter the password*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_Password);
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
-		/*Validate the connection*/
 		do
 		{
-			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 70);
-			Local_Reply = Esp_ValidateCmd(Esp_Response, "\r\nOK\r\nWIFI DISWIFI CONNECTED\r\n");
+			/*Disconnect from old Wi-Fi connection if any*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CWQAP\r\n");
+			/*send command to start connection*/
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 23);
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CWJAP_CUR=");
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			/*Enter the user name*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_Username);
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			/*Enter the password*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_Password);
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
+			/*Validate the connection*/
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 35);
+			Esp_Delay(10000000);
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, (Esp_Response+35), 35);
+			Local_Reply = Esp_ValidateCmd(Esp_Response, ESP_WIFI_CONNECTED);
+			if(Local_Reply == FALSE)
+			{
+				Local_Reply = Esp_ValidateCmd(Esp_Response, ESP_REPLY);
+			}
 			Local_Counter++;
 		}while((Local_Reply==FALSE)&& (Local_Counter < ESP_TIMEOUT));
 		if(Local_Counter== ESP_TIMEOUT)
 		{
 			Local_ErrorState=E_CONNECTION_FAILED;
 		}
+		else
+		{
+			Local_ErrorState=E_OK;
+		}
 	}
 	return Local_ErrorState;
 }
 
 /******************************************************************************
- * \Syntax          : ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u8 Copy_PortNum)
+ * \Syntax          : ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u16 Copy_PortNum)
  * \Description     : Connect the ESP module to Server
  *
  * \Sync\Async      : Synchronous
@@ -215,7 +245,7 @@ ErrorState_t Esp_ConnectWifi(Esp_UsartNum Copy_UsartNum, char* Copy_Username, ch
  * \Parameters (out): None
  * \Return value:   : ErrorState_t
  *******************************************************************************/
-ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u8 Copy_PortNum)
+ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, char* Copy_ConnectionType, u16 Copy_PortNum)
 {
 	ErrorState_t Local_ErrorState=E_OK;
 	bool Local_Reply=TRUE;
@@ -227,27 +257,28 @@ ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, 
 	}
 	else
 	{
-		/*send server connection command*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CIPSTART=");
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		/*Choose the connection type TCP / UDP*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_ConnectionType);
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		/*Enter the server IP or DNS to connect it*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_ServerIp);
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
-		Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
-		Esp_ConvertNumToStr(Copy_PortNum,Local_NumStr);
-		/*Enter the Port number chosen for connection*/
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Local_NumStr);
-		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
-		/*Validate connection*/
 		do
 		{
+			/*send server connection command*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CIPSTART=");
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			/*Choose the connection type TCP / UDP*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_ConnectionType);
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			/*Enter the server IP or DNS to connect it*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Copy_ServerIp);
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, '"');
+			Local_ErrorState=Usart_SendCharSynch(Copy_UsartNum, ',');
+			Esp_ConvertNumToStr(Copy_PortNum,Local_NumStr);
+			/*Enter the Port number chosen for connection*/
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Local_NumStr);
+			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
+			Esp_Delay(5);
+			/*Validate connection*/
 			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 17);
-			Local_Reply = Esp_ValidateCmd(Esp_Response, "\rCONNECT\r\n\r\nOK\r\n");
+			Local_Reply = Esp_ValidateCmd(Esp_Response, ESP_SERVER_CONNECTED);
 			Local_Counter++;
 		}
 		while((Local_Reply==FALSE) && (Local_Counter < ESP_TIMEOUT));
@@ -286,19 +317,19 @@ ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_Da
 		/*send command to set the length of data will be sent*/
 		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CIPSEND=");
 		/*Add 2 to send \r\n at the end of data*/
-		Esp_ConvertNumToStr((Copy_DataLength+2), Local_NumStr);
+		Esp_ConvertNumToStr(Copy_DataLength, Local_NumStr);
 		/*send the length of data*/
 		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Local_NumStr);
 		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
 		/*check for the configuration is done*/
-		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 8);
-		Local_Reply=Esp_ValidateCmd(Esp_Response, "\r\nOK\r\n");
+		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, ESP_SEND_REPLY);
+		Local_Reply=Esp_ValidateCmd(Esp_Response, ESP_REPLY);
 		if(Local_Reply == TRUE)
 		{
 			/*Send Data*/
 			Local_ErrorState=Usart_SendBufferSynch(Copy_UsartNum, Copy_Data, Copy_DataLength);
-			Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
-			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 31);
+			Esp_Delay(5);
+			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, ESP_SEND_ACK);
 		}
 		else
 		{

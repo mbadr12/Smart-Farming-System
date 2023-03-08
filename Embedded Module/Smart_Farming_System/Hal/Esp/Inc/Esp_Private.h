@@ -19,14 +19,26 @@
  *********************************************************************************************************************/
 #define MAX_RESPONSE		70
 
-#define ESP_TIMEOUT			10
+#define ESP_TIMEOUT			3
+
+#define ESP_REPLY_LEN		7
+
+#define ESP_SEND_REPLY		8
+
+#define ESP_SEND_ACK		30
+
+#define ESP_REPLY				"\r\nOK\r\n"
+
+#define ESP_WIFI_CONNECTED		"\r\nOK\r\nWIFI DISWIFI CONNECTED\r\n"
+
+#define ESP_SERVER_CONNECTED	"CONNECT\r\n\r\nOK\r\n"
 
 /**********************************************************************************************************************
  *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 
 /******************************************************************************
- * \Syntax          : bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
+ * \Syntax          : static bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct)
  * \Description     : Validate the response of Esp to sent commands
  *
  * \Sync\Async      : Synchronous
@@ -37,10 +49,10 @@
  * \Return value:   : bool	TRUE
  * 							FALSE
  *******************************************************************************/
-bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct);
+static bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct);
 
 /******************************************************************************
- * \Syntax          : void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
+ * \Syntax          : static void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String)
  * \Description     : Convert number to string to send in UTF-8 format
  *
  * \Sync\Async      : Synchronous
@@ -49,8 +61,20 @@ bool Esp_ValidateCmd(u8* Copy_Response, char* Copy_Correct);
  * \Parameters (out): Copy_String	Converted number as string
  * \Return value:   : void
  *******************************************************************************/
-void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String);
- 
+static void Esp_ConvertNumToStr(u16 Copy_Number, char* Copy_String);
+
+/******************************************************************************
+ * \Syntax          : static void Esp_Delay(u32 Copy_Delay)
+ * \Description     : generate delay
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_Delay   	Number to clock cycle wanted multiplied by 4
+ * \Parameters (out): Copy_String	Converted number as string
+ * \Return value:   : void
+ *******************************************************************************/
+static void Esp_Delay(u32 Copy_Delay);
+
 #endif  /* ESP_PRIVATE_H */
 
 /**********************************************************************************************************************

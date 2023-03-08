@@ -27,6 +27,38 @@
  *  GLOBAL DATA TYPES AND STRUCTURES
  *********************************************************************************************************************/
 
+typedef enum
+{
+	MQTT_USART1=0,
+	MQTT_USART2,
+	MQTT_USART3,
+	MQTT_UART4,
+	MQTT_UART5,
+	MQTT_USART6
+}Mqtt_UsartNum;
+
+typedef enum
+{
+	MQTT_QOS0=0,
+	MQTT_QOS1,
+	MQTT_QOS2
+}Mqtt_Qos_t;
+
+typedef struct
+{
+	char* WifiName;
+	char* WifiPassword;
+	char* BrokerDNS;
+	u16 BrokerTcpPort;
+}Mqtt_EspConnection;
+
+typedef struct
+{
+	char* TopicName;
+	u8* Msg;
+	Mqtt_Qos_t Qos;
+	u32 MsgLen;
+}Mqtt_Publish_t;
 
 /**********************************************************************************************************************
  *  GLOBAL DATA PROTOTYPES

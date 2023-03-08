@@ -541,7 +541,7 @@ ErrorState_t Usart_ReceiveBufferSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buf
  * \Parameters (out): Copy_Buffer	  Buffer to be Received by USART
  * \Return value    : ErrorState_t
  *******************************************************************************/
-ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
+ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u8* Copy_Buffer, u16 Copy_BufferSize, void (*Copy_NotificationFunc)(void))
 {
 	ErrorState_t Local_ErrorState=E_OK;
 	if(Copy_UsartNum >= USART_NUM)
@@ -565,7 +565,7 @@ ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_
 				Usart_ISRSource[Copy_UsartNum]=RECEIVE_BUFFER;
 				/*Pass the Data and call Back Function to Global Variables*/
 				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
-				Usart_pData[Copy_UsartNum]=Copy_Buffer;
+				Usart_pData[Copy_UsartNum]=(char*)Copy_Buffer;
 				Usart_BufferSize=Copy_BufferSize;
 				/*USART RXNE interrupt Enable*/
 				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);

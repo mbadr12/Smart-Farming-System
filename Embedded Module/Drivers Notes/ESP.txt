@@ -10,11 +10,11 @@ using Putty
 3- ATE1\r\n:		Open the echo (use when working on putty) response: OK
 4- AT+RST\r\n:		Reset The wifi module
 5- AT+CWMODE=1\r\n:	work As station mode(Access point mode=2) response: OK
-6- AT+CWJAP_CUR="WifiName","pass"\r\n: Connect to wifi response: WIFI CONNECTED\r\nWIFI GOT IP
+6- AT+CWJAP_CUR="WifiName","pass"\r\n: Connect to wifi response: WIFI CONNECTED\r\nWIFI GOT IP AT+CWJAP_CUR="ElYazeed","YmW11022#"
 7- AT+CWQAP\r\n:	Disconnect From wifi response: WIFI DISCONNECT
 8- AT+CIPSTART="Mode","IP or DNS",PortNum\r\n: COnnect to Server  
 	EX:AT+CIPSTART="TCP","69.197.143.14",80\r\n or AT+CIPSTART="TCP","broker.hivemq.com",1883 response:CONNECT
-9- AT+CIPSEND=NumOfChars\r\n ex: AT+CIPSEND=40\r\n GET http://badr.freevar.com/status.txt\r\n response: IPD,Length:content
+9- AT+CIPSEND=NumOfChars\r\n ex: AT+CIPSEND=40\r\n GET http://badr.freevar.com/status.txt\r\n response: +IPD,Length:content
 
 
 /*sodo code for wifi functions*/
