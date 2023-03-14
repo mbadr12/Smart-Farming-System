@@ -22,13 +22,14 @@
 /**********************************************************************************************************************
  *  GLOBAL FUNCTION MACROS
  *********************************************************************************************************************/
-#define NVIC_ENABLE_ALL_INT() __asm("CPSIE i")
-#define NVIC_DISABLE_ALL_INT() __asm("CPSID i")
+#define NVIC_ENABLE_ALL_INT() __asm volatile("CPSIE i")
+#define NVIC_DISABLE_ALL_INT() __asm volatile("CPSID i")
 
 /**********************************************************************************************************************
  *  GLOBAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
-
+/*Enta bthazar ya mezo .. ahm mn الشغل zabth*/
+/*Give me documentation for every function*/
 ErrorState_t Nvic_EnableIRQ(Nvic_IRQn_t Copy_IRQ);
 ErrorState_t Nvic_DisableIRQ(Nvic_IRQn_t Copy_IRQ);
 
@@ -43,7 +44,7 @@ ErrorState_t Nvic_SetPriority(Nvic_IRQn_t Copy_IRQ, u8 Copy_Prio);
 ErrorState_t Nvic_GetPriority(Nvic_IRQn_t Copy_IRQ, u8 *pPrio);
 
 ErrorState_t Nvic_GenerateInterrupt(Nvic_IRQn_t Copy_IRQ); //by software
-                                                           //
+                                                           
 #endif /* NVIC_INTERFACE_H_H */
 
 /**********************************************************************************************************************

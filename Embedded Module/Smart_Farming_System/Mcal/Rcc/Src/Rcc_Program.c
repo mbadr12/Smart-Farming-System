@@ -22,17 +22,9 @@
 #include "Rcc_Private.h"
 
 /**********************************************************************************************************************
- *  LOCAL DATA 
- *********************************************************************************************************************/
- 
-/**********************************************************************************************************************
- *  GLOBAL DATA
- *********************************************************************************************************************/
-
-/**********************************************************************************************************************
  *  LOCAL FUNCTIONS
  *********************************************************************************************************************/
-
+/*Mashy ya sedy shokran kfaya .. Ehna hanhazar?*/
 /* TODO:: Handle non default initilization */
 static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
     /* If user passes NULL leave the PLL at default rest value initialization (PLL General Clock Output = 96Mhz)*/
@@ -46,8 +38,7 @@ static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode)        
 * \Description     : Enable The clock to a peripheral and choose if in low power mode for the peripheral to
-continue working while in sleep mode.                                    
-*                                                                             
+*						continue working while in sleep mode.                                                                                                               
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_PeripheralId, Copy_LowePowerMode
@@ -120,7 +111,6 @@ ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-
 ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
     ErroState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
@@ -165,19 +155,13 @@ ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
 * \Description     : Turn on/off different clok sources. In stm32f429 I have 5 different clock sources:
-                            1. HSI
-                            2. HSE
-                            3. PLL
-                            4. PLLI2s
-                            5. PLLSAI
-*                                                                             
+*                            1. HSI 2. HSE 3. PLL 4. PLLI2s 5. PLLSAI                                                   
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_PeripheralId
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-
 ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
     ErroState_t Local_ErrorState = E_OK;
     if(Copy_ClkState > 1){
@@ -287,16 +271,13 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
 
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)        
-* \Description     : Choose the source for the SYSCLK:
-                            1. HSI
-                            2. HSE 3. PLL
+* \Description     : Choose the source for the SYSCLK: 1. HSI 2. HSE 3. PLL
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_ClkType
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-
 ErroState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
 {
 	ErroState_t Local_ErrorSate = E_OK;
