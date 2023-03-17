@@ -51,8 +51,7 @@ typedef enum
 	ADC_CHANNEL12,
 	ADC_CHANNEL13,
 	ADC_CHANNEL14,
-	ADC_CHANNEL15,
-	ADC_CHANNEL16
+	ADC_CHANNEL15
 }Adc_ChannelNum;
 
 typedef enum
@@ -102,7 +101,7 @@ typedef enum
 	ADC_TIMER1_CC4=0,
 	ADC_TIMER1_TRGO,
 	ADC_TIMER2_CC1,
-	ADC_TIMER2_TRGO,
+	ADC_TIMER2_TRGO1,
 	ADC_TIMER3_CC2,
 	ADC_TIMER3_CC4,
 	ADC_TIMER4_CC1,
@@ -125,6 +124,18 @@ typedef enum
 
 typedef enum
 {
+	ADC_3_CYCLES=0,
+	ADC_15_CYCLES,
+	ADC_28_CYCLES,
+	ADC_56_CYCLES,
+	ADC_84_CYCLES,
+	ADC_112_CYCLES,
+	ADC_144_CYCLES,
+	ADC_480_CYCLES
+}Adc_ChannelSampleTime;
+
+typedef enum
+{
 	ADC_REGULAR_CHANNEL=0,
 	ADC_INJECTED_CHANNEL
 }Adc_ChannelType;
@@ -144,7 +155,7 @@ typedef struct
 	Adc_TriggerType TriggerType;
 	Adc_ExtTriggerSense Sense;
 	Adc_RegularExtTrigger ExtTrigger;
-	u16* Adc_Reading
+	Adc_ChannelSampleTime SampleTime;
 }Adc_ConversionConfig_t;
 
 typedef struct
@@ -157,7 +168,7 @@ typedef struct
 	Adc_TriggerType TriggerType;
 	Adc_ExtTriggerSense Sense;
 	Adc_RegularExtTrigger ExtTrigger;
-	u16* Adc_Reading
+	Adc_ChannelSampleTime* SampleTime;
 }Adc_ChainConvConfig_t;
 
 /**********************************************************************************************************************

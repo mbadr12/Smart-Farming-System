@@ -22,7 +22,7 @@
  *3- ADC_DIV_BY_6
  *4- ADC_DIV_BY_8 
  */
-#define ADC_PRESCALER		ADC_DIV_BY_8
+#define ADC_PRESCALER		ADC_DIV_BY_2
 
 /*Choose the delay between every two conversions:
  *1- ADC_5_ADC_CLK
@@ -30,6 +30,8 @@
  *3- ADC_7_ADC_CLK
  */
 #define ADC_DELAY			ADC_5_ADC_CLK
+
+#define ADC_TIME_OUT		50000
 
 #endif  /* ADC_CONFIG_H */
 
