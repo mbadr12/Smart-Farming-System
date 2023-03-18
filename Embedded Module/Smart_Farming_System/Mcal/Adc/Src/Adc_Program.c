@@ -360,7 +360,7 @@ ErrorState_t Adc_StartChainConversionSynch(Adc_ChainConvConfig_t* Copy_ChainConf
 							}
 							else
 							{
-								Copy_ChainConfig->Channel[Local_Counter]=ADC_CH_REG->DR;
+								Copy_Reading[Local_Counter]=ADC_CH_REG->DR;
 								Local_TimeEclapsed=0;
 							}
 						}
@@ -400,7 +400,7 @@ ErrorState_t Adc_StartChainConversionSynch(Adc_ChainConvConfig_t* Copy_ChainConf
 						{
 							for(Local_Counter=0; Local_Counter<CONV_NUM; Local_Counter++)
 							{
-								Copy_ChainConfig->Channel[Local_Counter]=ADC_CH_REG->JDR[Local_Counter];
+								Copy_Reading[Local_Counter]=ADC_CH_REG->JDR[Local_Counter];
 							}
 							/*clear JEOC flag*/
 							Clr_Bit(ADC_CH_REG->SR,JEOC);
