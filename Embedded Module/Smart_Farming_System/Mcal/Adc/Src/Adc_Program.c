@@ -234,8 +234,6 @@ ErrorState_t Adc_StartConversionAsynch(Adc_ConversionConfig_t* Copy_ConvConfig, 
 				switch(Copy_ConvConfig->ChannelType)
 				{
 				case ADC_REGULAR_CHANNEL:
-					/*the interrupt is enabled */
-					Set_Bit(ADC_REG->CR[CR1],EOCIE);
 					/*Put the channel as first channel in the sequence of channels*/
 					ADC_REG->SQR[SQR1]=0;
 					ADC_REG->SQR[SQR3]=0;
@@ -247,10 +245,10 @@ ErrorState_t Adc_StartConversionAsynch(Adc_ConversionConfig_t* Copy_ConvConfig, 
 					case ADC_SW_TRIGGER: Set_Bit(ADC_REG->CR[CR2],SWSTART); break;
 					case ADC_EXT_TRIGGER: ADC_REG->CR[CR2] |= Copy_ConvConfig->Sense<<EXT_TRG_SENSE | Copy_ConvConfig->ExtTrigger<<EXT_TRG_SELECT; break;
 					default: Local_ErrorState=E_WRONG_OPTION; break;
-					}break;
+					}
+					/*the interrupt is enabled */
+					Set_Bit(ADC_REG->CR[CR1],EOCIE); break;
 					case ADC_INJECTED_CHANNEL:
-						/*the interrupt is enable */
-						Set_Bit(ADC_REG->CR[CR1],JEOCIE);
 						/*Put the channel as first channel in the sequence of channels*/
 						ADC_REG->JSQR=0;
 						ADC_REG->JSQR |= Copy_ConvConfig->Channel<<JSQ4;
@@ -261,7 +259,9 @@ ErrorState_t Adc_StartConversionAsynch(Adc_ConversionConfig_t* Copy_ConvConfig, 
 						case ADC_SW_TRIGGER: Set_Bit(ADC_REG->CR[CR2],JSWSTART); break;
 						case ADC_EXT_TRIGGER: ADC_REG->CR[CR2] |= (Copy_ConvConfig->Sense<<INJ_EXT_TRG_SENSE) | (Copy_ConvConfig->ExtTrigger<<INJ_EXT_TRG_SELECT); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
-						}break;
+						}						
+						/*the interrupt is enable */
+						Set_Bit(ADC_REG->CR[CR1],JEOCIE); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 				}
 			}
