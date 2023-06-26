@@ -29,6 +29,7 @@
 void SysTick_Init(SysTick_Config_t *pConfig);
 void SysTick_IncTick(void);
 u32 SysTick_GetTick(void);
+void SysTick_Delay(u32 Copy_DelayMs);
 
 #endif /* SYSTICK_INTERFACE_H */
 

@@ -86,6 +86,34 @@ u32 SysTick_GetTick(void){
     return SysTick_TickCount;
 }
 
+/******************************************************************************
+ * \Syntax          :  u32 SysTick_Delay(u32 Copy_DelayMs)
+ * \Description     :  blocking delay in ms.
+
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : u32
+ *******************************************************************************/
+void SysTick_Delay(u32 Copy_DelayMs){
+    u32 Local_InitialTick = SysTick_TickCount;
+    while(SysTick_TickCount - Local_InitialTick < Copy_DelayMs);
+}
+
+/******************************************************************************
+ * \Syntax          : void SysTick_Handler(void)
+ * \Description     : SysTick ISR. 
+
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : None
+ * \Parameters (out): None
+ * \Return value:   : void
+ *******************************************************************************/
+void SysTick_Handler(void){
+    SysTick_IncTick();
+}
 /**********************************************************************************************************************
  *  END OF FILE: SysTick_Program.c
  *********************************************************************************************************************/
