@@ -1,74 +1,39 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *       Author:  -
- *	   	   File:  STD_TYPES.h
- *		  Layer:  LIB
- *       Module:  STD_TYPES
- *		Version:  1.00
+ *       Author:  Musa Mahmoud
+ *	   	   File:  Aht21b_Types.h
+ *		  Layer:  Hal
+ *       Module:  Aht21b
+ *		Version:  1.0
  *	
- *  Description:  Standard types definitions      
+ *  Description:  A header file that contains the API types of the aht21b module. And it includes standard types
  *  
  *********************************************************************************************************************/
-#ifndef STD_TYPES_H_
-#define STD_TYPES_H_
+#ifndef AHT21B_TYPES_H
+#define AHT21B_TYPES_H
+
 /**********************************************************************************************************************
- *  INCLUDES
+ * INCLUDES
  *********************************************************************************************************************/
-#include "Platform_Types.h"
+#include "Std_Types.h"
 
 /**********************************************************************************************************************
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
 
-#define NULL			0
 
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
  *********************************************************************************************************************/
-typedef enum
-{
-	IDLE=0,
-	BUSY
-}Peripheral_State;
 
-typedef enum
-{
-	SEND_CHAR=0,
-	SEND_STRING,
-	SEND_BUFFER,
-	RECEIVE_CHAR,
-	RECEIVE_BUFFER,
-	SINGLE_CONVERSION=0,
-	CHAIN_CONVERSION
-}ISR_Src;
-
-typedef enum
-{
-	FALSE=0,
-	TRUE
-}bool;
-
-typedef enum
-{
-	E_OK=0,
-	E_NOK,
-	E_NULL_POINTER,
-	E_WRONG_OPTION,
-	E_BUSY_FUNC,
-	E_TIME_OUT,
-	E_NO_RESPOSE,
-	E_CONNECTION_FAILED
-}ErrorState_t;
-
-typedef enum
-{
-	LOCKED=0,
-	UNLOCKED
-} Lock_t;
-
-#endif /* STD_TYPES_H_ */
 
 /**********************************************************************************************************************
- *  END OF FILE: STD_TYPES.h
+ *  GLOBAL DATA PROTOTYPES
+ *********************************************************************************************************************/
+
+#endif  /* AHT21B_TYPES_H */
+
+/**********************************************************************************************************************
+ *  END OF FILE: Aht21b_Types.h
  *********************************************************************************************************************/

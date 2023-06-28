@@ -169,8 +169,6 @@ typedef struct
   u32 NoStretchMode;    /*!< Specifies if nostretch mode is selected.
                                   This parameter can be a value of @ref I2C_nostretch_mode */
 
-  I2c_Id_t Id;
-
 } I2c_Config_t;
 
 
