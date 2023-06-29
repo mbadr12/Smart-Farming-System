@@ -1,16 +1,16 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *       Author:  Mahmoud Badr
+ *       Author:  Mazen Fahim
  *	   	   File:  Gpio_Program.c
  *		  Layer:  Mcal
  *       Module:  Gpio
  *		Version:  2.00
  *	
- *  Description:  -     
+ *  Description:  Gpio driver implementation.     
  *  
  *********************************************************************************************************************/
- 
+
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
@@ -18,225 +18,239 @@
 #include "Bit_Math.h"
 
 #include "Gpio_Interface.h"
+#include "Gpio_Config.h"
 #include "Gpio_Private.h"
+#include "Rcc_Interface.h"
 
 /**********************************************************************************************************************
- *  LOCAL DATA 
+ *  LOCAL DATA
  *********************************************************************************************************************/
-/*Array of Pointers With The GPIO Ports*/
-static Gpio_RegDef_t *Gpio_PortArr[PORT_NUM]={GPIOA , GPIOB , GPIOC , GPIOD , GPIOE, GPIOF , GPIOG , GPIOH};
- 
+
+static Gpio_RegDef_t *Gpios[] = {
+    GPIOA, GPIOB, GPIOC,
+    GPIOD, GPIOE, GPIOF,
+    GPIOG, GPIOH, GPIOI,
+    GPIOJ, GPIOK
+};
+
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
+ErrorState_t Gpio_ControlClock(const Gpio_PortId_t Copy_Id, const bool Copy_EnorDi){
 
-/******************************************************************************
-* \Syntax          : ErrorState_t Gpio_PinInit(const Gpio_PinConfig_t *Copy_PinConfig)       
-* \Description     : The Function Initializes the Required Pin Configuration options                                   
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : 1- PinConfig: const pointer to GPIO_PinConfig_t structure which holds the configurations                     
-* \Parameters (out): None                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_PinInit(const Gpio_PinConfig_t *Copy_PinConfig)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	/*Check For the Pointer*/
-	if(Copy_PinConfig != NULL)
-	{
-		if(Copy_PinConfig->Port < PORT_NUM && Copy_PinConfig->PinNum <= GPIO_PIN15)
-		{
-			/*1- Set Pin Mode Configuration*/
-			Gpio_PortArr[Copy_PinConfig->Port]->MODER &= ~(MODE_BIT_MASK << (2*Copy_PinConfig->PinNum));
-			Gpio_PortArr[Copy_PinConfig->Port]->MODER |= Copy_PinConfig->Mode <<(2*Copy_PinConfig->PinNum);
-			/*2- Set Pin Pull Up / Down Configuration*/
-			Gpio_PortArr[Copy_PinConfig->Port]->PUPDR &= ~(PUD_BIT_MASK<<(2*Copy_PinConfig->PinNum));
-			Gpio_PortArr[Copy_PinConfig->Port]->PUPDR |= Copy_PinConfig->PullUpDown <<(2*Copy_PinConfig->PinNum);
-			/*3- Set The Output Type ConfigurationIf the Pin Mode OutPut*/
-			switch(Copy_PinConfig->OutputType)
-			{
-			case GPIO_OUTPUT_PUSH_PULL: Clr_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
-			case GPIO_OUTPUT_OPEN_DRAIN: Set_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
-			default: Local_ErrorState=E_WRONG_OPTION;
-			}
-			/*- Set The Output Speed Configuration If the Pin Mode OutPut*/
-			Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER &= ~(SPEED_BIT_MASK<<(2*Copy_PinConfig->PinNum));
-			Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER |= Copy_PinConfig->OutputSpeed <<(2*Copy_PinConfig->PinNum);
-			if(Copy_PinConfig->Mode == GPIO_PIN_ALTFunc)
-			{
-				/*4- Set The Alternative Function Option If the Pin Mode Alternative Function*/
-				if(Copy_PinConfig->PinNum<8 && Copy_PinConfig->PinNum>=0)
-				{
-					Gpio_PortArr[Copy_PinConfig->Port]->AFR[0] &= ~(ALT_FUNC_BIT_MASK << (4*Copy_PinConfig->PinNum));
-					Gpio_PortArr[Copy_PinConfig->Port]->AFR[0] |= Copy_PinConfig->AlternateFuncOption<<(4*Copy_PinConfig->PinNum);
-				}
-				else if(Copy_PinConfig->PinNum<16 && Copy_PinConfig->PinNum>7)
-				{
-					Gpio_PortArr[Copy_PinConfig->Port]->AFR[1] &= ~(ALT_FUNC_BIT_MASK << (4*Copy_PinConfig->PinNum));
-					Gpio_PortArr[Copy_PinConfig->Port]->AFR[1] |= (Copy_PinConfig->AlternateFuncOption-8)<<(4*Copy_PinConfig->PinNum);
-				}
-				else
-				{
-					Local_ErrorState=E_WRONG_OPTION;
-				}
-			}
-		}
-		else
-		{
-			Local_ErrorState=E_WRONG_OPTION;
-		}
-	}
-	else
-	{
-		Local_ErrorState=E_NULL_POINTER;
-	}
-	return Local_ErrorState;
+    if(!IS_PORT_ID(Copy_Id)){
+        return E_WRONG_OPTION;
+    }
+
+    if(!IS_BOOL(Copy_EnorDi)){
+        return E_WRONG_OPTION;
+    }
+
+    if(Copy_EnorDi == ENABLE){
+        Rcc_EnablePericlock((Rcc_PeripheralId_t)Copy_Id, FALSE);
+    } 
+    else{
+        Rcc_DisablePericlock((Rcc_PeripheralId_t)Copy_Id);
+    }
+
+    return E_OK;
+}
+
+
+ErrorState_t Gpio_Init(const Gpio_PinId_t Copy_Id, const Gpio_Config_t *pConfig){ 
+    u32 Local_Temp = 0;
+
+    if(pConfig == NULL){
+         return E_NULL_POINTER;
+    }
+
+    if(!IS_PIN_ID(Copy_Id)){
+        return E_WRONG_OPTION;
+    }
+
+    u32 Local_PinId, Local_PortId;
+    Local_PortId = Copy_Id / NUMBER_OF_PINS_PER_PORT;
+    Local_PinId = Copy_Id % NUMBER_OF_PINS_PER_PORT;
+
+    /* 1- Pin Mode */
+    if(!IS_PIN_MODE(pConfig->PinMode)){
+        return E_WRONG_OPTION;
+    }
+    else{
+        Local_Temp = Gpios[Local_PortId]->MODER;
+        Local_Temp &= ~(0x3 << Local_PinId * 2);
+        Local_Temp |= (pConfig->PinMode << Local_PinId * 2);
+        Gpios[Local_PortId]->MODER = Local_Temp;
+    }
+
+    /* 2- Pin Output Type */
+    if(!IS_PIN_OUTPUT_TYPE(pConfig->PinOutputType)){
+        return E_WRONG_OPTION;
+    }
+    else{
+        Local_Temp = Gpios[Local_PortId]->OTYPER;
+        Local_Temp &= ~(0x1 << Local_PinId);
+        Local_Temp |= (pConfig->PinOutputType << Local_PinId);
+        Gpios[Local_PortId]->OTYPER = Local_Temp;
+    }
+
+    /* 3- Pin Output Speed */
+    if(!IS_PIN_OUTPUT_SPEED(pConfig->PinOutputSpeed)){
+        return E_WRONG_OPTION;
+    }
+    else{
+        Local_Temp = Gpios[Local_PortId]->OSPEEDER;
+        Local_Temp &= ~(0x3 << Local_PinId*2);
+        Local_Temp |= (pConfig->PinOutputSpeed << Local_PinId*2);
+        Gpios[Local_PortId]->OSPEEDER = Local_Temp;
+    }
+
+    /* 4- Pin Internal Attach */
+    if(!IS_PIN_INTERNAL_ATTACH(pConfig->PinInternalAttach)){
+        return E_WRONG_OPTION;
+    }
+    else{
+        Local_Temp = Gpios[Local_PortId]->PUPDR;
+        Local_Temp &= ~(0x3 << Local_PinId*2);
+        Local_Temp |= (pConfig->PinInternalAttach << Local_PinId*2);
+        Gpios[Local_PortId]->PUPDR = Local_Temp;
+    }
+
+    /* 5- Pin Alternate Function */
+    if(!IS_PIN_AF(pConfig->PinAF)){
+        return E_WRONG_OPTION;
+    }
+    else{
+        Local_Temp = Gpios[Local_PortId]->AFR[Local_PinId/8];
+        Local_Temp &= ~(0xf << Local_PinId*4);
+        Local_Temp |= (pConfig->PinAF << Local_PinId*4);
+        Gpios[Local_PortId]->AFR[Local_PinId/8] = Local_Temp;
+    }
+    return E_OK;
+}
+
+
+// TODO:: implement reset function
+ErrorState_t Gpio_DeInit(const Gpio_PinId_t Copy_Id){
+    
+    return E_OK;
 }
 
 /******************************************************************************
-* \Syntax          : ErrorState_t Gpio_SetPinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin,Gpio_PinState_t Copy_PinValue)
-* \Description     : the function sets an output values on the output pin                                   
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Reentrant                                             
-* \Parameters (in) : 1- Copy_Port    : the port of the required output pin, refer to port possible options
-*                    2- Copy_pin     : the pin number of the required output pin, refer to pin number possible options
-*                    3- Copy_PinValue: the required pin state, refer to pin value possible options
-* \Parameters (out): None                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_SetPinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin,Gpio_PinState_t Copy_PinValue)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	if(Copy_Port < PORT_NUM && Copy_Pin <= GPIO_PIN15)
-	{
-		switch(Copy_PinValue)
-		{
-			case GPIO_PIN_LOW: Gpio_PortArr[Copy_Port]->BSRR=1<<(Copy_Pin+16); break;
-			case GPIO_PIN_HIGH: Gpio_PortArr[Copy_Port]->BSRR=1<<Copy_Pin; break;
-			default: Local_ErrorState=E_WRONG_OPTION;
-		}
-	}
-	else
-	{
-		Local_ErrorState=E_WRONG_OPTION;
-	}
-	return Local_ErrorState;
+ * \Syntax          : Gpio_LevelType Gpio_ReadPin(Gpio_PinType channelId); 
+ * \Description     : read level from channel 
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : channelId   Identifies what channel to read 
+ * \Parameters (out): None
+ * \Return value:   : Error_State_t
+ *******************************************************************************/
+
+ErrorState_t Gpio_ReadPin(const Gpio_PinId_t Copy_Id, Gpio_PinLevel_t *pLevel){
+
+    if(pLevel  == NULL ){
+         return E_NULL_POINTER;
+    }
+
+    if(!IS_PIN_ID(Copy_Id)){
+         return E_WRONG_OPTION;
+    }
+
+    u32 Local_PinId, Local_PortId;
+    Local_PortId = Copy_Id / NUMBER_OF_PINS_PER_PORT;
+    Local_PinId = Copy_Id % NUMBER_OF_PINS_PER_PORT;
+
+    *pLevel = (Gpios[Local_PortId]->IDR >> Local_PinId) & 1;
+
+    return E_OK;
 }
 
 /******************************************************************************
-* \Syntax          : ErrorState_t Gpio_SetPortValue(Gpio_Port_t Copy_Port,u16 Copy_PortValue)
-* \Description     : the function sets an output values on the output port                                  
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Reentrant                                             
-* \Parameters (in) : 1- Copy_Port     : the the required output port, refer to port possible options
-*                    2- Copy_PortValue: the required pin state, refer to Port value possible options 
-* \Parameters (out): None                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_SetPortValue(Gpio_Port_t Copy_Port,u16 Copy_PortValue)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	if(Copy_Port < PORT_NUM)
-	{
-		Gpio_PortArr[Copy_Port]->ODR=Copy_PortValue;
-	}
-	else
-	{
-		Local_ErrorState=E_WRONG_OPTION;
-	}
-	return Local_ErrorState;
+ * \Syntax          : void Gpio_WritePin(Gpio_PinType channelId, Gpio_LevelType level)
+ * \Description     : Write level to channel 
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : channelId   Identifies what channel to write
+ level       The value to be written on the channel
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t  
+ *******************************************************************************/
+ErrorState_t Gpio_WritePin(const Gpio_PinId_t Copy_Id, const Gpio_PinLevel_t Copy_Level){
+
+    if(!IS_PIN_LEVEL(Copy_Level)){
+        return E_WRONG_OPTION;
+    }
+
+    if(!IS_PIN_ID(Copy_Id)){
+        return E_WRONG_OPTION;
+    }
+
+    u32 Local_PinId, Local_PortId;
+    Local_PortId = Copy_Id / NUMBER_OF_PINS_PER_PORT;
+    Local_PinId = Copy_Id % NUMBER_OF_PINS_PER_PORT;
+
+    if(Copy_Level == GPIO_HIGH){
+        Gpios[Local_PortId]->BSRR = (1 << Local_PinId);
+    }
+    else{
+        Gpios[Local_PortId]->BSRR = (1 << (Local_PinId+16U));
+    }
+
+    return E_OK;
 }
 
 /******************************************************************************
-* \Syntax          : ErrorState_t Gpio_GetPinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin,Gpio_PinState_t* Copy_PinValue)
-* \Description     : The function Reads an Input value Of the required Pin                                 
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : 1- Copy_Port : the port of the required Input pin, refer to port possible options
-*                    2- Copy_pin  : the pin number of the required Input pin, refer to pin number possible option
-* \Parameters (out): 1- Copy_PinValue: pointer to get the required pin state                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_GetPinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin,Gpio_PinState_t* Copy_PinValue)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	if(Copy_PinValue != NULL)
-	{
-		if(Copy_Port < PORT_NUM && Copy_Pin <= GPIO_PIN15)
-		{
-			*Copy_PinValue = (Gpio_PinState_t)((Gpio_PortArr[Copy_Port]->IDR>>Copy_Pin)&1);
-		}
-		else
-		{
-			Local_ErrorState=E_WRONG_OPTION;
-		}
-	}
-	else
-	{
-		Local_ErrorState=E_NULL_POINTER;
-	}
-	return Local_ErrorState;
+ * \Syntax          : Gpio_PortLevelType Gpio_ReadPort(Gpio_PortType portId) 
+ * \Description     : Read level from port 
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : portId         Identifies the port 
+ * \Parameters (out): None
+ * \Return value:   : Error_State_t
+ *******************************************************************************/
+ErrorState_t Gpio_ReadPort(const Gpio_PortId_t Copy_Id, Gpio_PortLevel_t *pLevel){
+
+    if(pLevel == NULL){
+        return E_NULL_POINTER;
+    }
+    if(!IS_PORT_ID(Copy_Id)){
+        return E_WRONG_OPTION;
+    }
+
+    *pLevel = Gpios[Copy_Id]->IDR;
+
+    return E_OK;
 }
 
 /******************************************************************************
-* \Syntax          : ErrorState_t Gpio_GetPortValue(Gpio_Port_t Copy_Port,u16* Copy_PortValue)
-* \Description     : The function Reads an Input value Of the required Port                                
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Reentrant                                             
-* \Parameters (in) : 1- Copy_Port : the port of the required Input pin, refer to port possible options
-* \Parameters (out): 1- Copy_PortValue: pointer to get the required Port value                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_GetPortValue(Gpio_Port_t Copy_Port,u16* Copy_PortValue)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	if(Copy_PortValue != NULL)
-	{
-		if(Copy_Port < PORT_NUM)
-		{
-			*Copy_PortValue = Gpio_PortArr[Copy_Port]->IDR;
-		}
-		else
-		{
-			Local_ErrorState=E_WRONG_OPTION;
-		}
-	}
-	else
-	{
-		Local_ErrorState=E_NULL_POINTER;
-	}
-	return Local_ErrorState;
-}
+ * \Syntax          : void Gpio_WritePort(Gpio_PortType portId, Gpio_PortLevelType level) 
+ * \Description     : Write level to port 
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Reentrant
+ * \Parameters (in) : portId  Identifies the port 
+ level   The value to be written on the port
+ * \Parameters (out): None
+ * \Return value:   : Error_State_t
+ *******************************************************************************/
+ErrorState_t Gpio_WritePort(const Gpio_PortId_t Copy_Id, const Gpio_PortLevel_t Copy_Level){
 
-/******************************************************************************
-* \Syntax          : Gpio_TogglePinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin)
-* \Description     : the function Toggles the value of output pin                                 
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : 1- Copy_Port: the the required output port, refer to port possible options
-*                    2- Copy_Pin: the required pin state, refer to Port value possible options
-* \Parameters (out): None                                                   
-* \Return value:   : ErrorState_t                                
-*******************************************************************************/
-ErrorState_t Gpio_TogglePinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin)
-{
-	ErrorState_t Local_ErrorState=E_OK;
-	if(Copy_Port < PORT_NUM && Copy_Pin <= GPIO_PIN15)
-	{
-		Gpio_PortArr[Copy_Port]->ODR ^= (1<<Copy_Pin);
-	}
-	else
-	{
-		Local_ErrorState=E_WRONG_OPTION;
-	}
-	return Local_ErrorState;
+    if(!IS_PORT_ID(Copy_Id)){
+         return  E_WRONG_OPTION;
+    }
+
+    if(!IS_PORT_LEVEL(Copy_Level)){
+         return E_WRONG_OPTION;
+    }
+
+    else{
+        Gpios[Copy_Id]->ODR = Copy_Level;
+    }
+
+    return E_OK;
 }
 
 /**********************************************************************************************************************
