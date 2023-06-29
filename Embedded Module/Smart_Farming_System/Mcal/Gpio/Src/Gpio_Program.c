@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F446xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Gpio_Interface.h"
 #include "Gpio_Private.h"
@@ -54,19 +54,16 @@ ErrorState_t Gpio_PinInit(const Gpio_PinConfig_t *Copy_PinConfig)
 			/*2- Set Pin Pull Up / Down Configuration*/
 			Gpio_PortArr[Copy_PinConfig->Port]->PUPDR &= ~(PUD_BIT_MASK<<(2*Copy_PinConfig->PinNum));
 			Gpio_PortArr[Copy_PinConfig->Port]->PUPDR |= Copy_PinConfig->PullUpDown <<(2*Copy_PinConfig->PinNum);
-			if(Copy_PinConfig->Mode == GPIO_PIN_OUTPUT)
+			/*3- Set The Output Type ConfigurationIf the Pin Mode OutPut*/
+			switch(Copy_PinConfig->OutputType)
 			{
-				/*3- Set The Output Type ConfigurationIf the Pin Mode OutPut*/
-				switch(Copy_PinConfig->OutputType)
-				{
-				case GPIO_OUTPUT_PUSH_PULL: Clr_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
-				case GPIO_OUTPUT_OPEN_DRAIN: Set_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
-				default: Local_ErrorState=E_WRONG_OPTION;
-				}
-				/*- Set The Output Speed Configuration If the Pin Mode OutPut*/
-				Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER &= ~(SPEED_BIT_MASK<<(2*Copy_PinConfig->PinNum));
-				Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER |= Copy_PinConfig->OutputSpeed <<(2*Copy_PinConfig->PinNum);
+			case GPIO_OUTPUT_PUSH_PULL: Clr_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
+			case GPIO_OUTPUT_OPEN_DRAIN: Set_Bit(Gpio_PortArr[Copy_PinConfig->Port]->OTYPER,Copy_PinConfig->PinNum); break;
+			default: Local_ErrorState=E_WRONG_OPTION;
 			}
+			/*- Set The Output Speed Configuration If the Pin Mode OutPut*/
+			Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER &= ~(SPEED_BIT_MASK<<(2*Copy_PinConfig->PinNum));
+			Gpio_PortArr[Copy_PinConfig->Port]->OSPEEDER |= Copy_PinConfig->OutputSpeed <<(2*Copy_PinConfig->PinNum);
 			if(Copy_PinConfig->Mode == GPIO_PIN_ALTFunc)
 			{
 				/*4- Set The Alternative Function Option If the Pin Mode Alternative Function*/
@@ -181,7 +178,7 @@ ErrorState_t Gpio_GetPinValue(Gpio_Port_t Copy_Port,Gpio_PIN_t Copy_Pin,Gpio_Pin
 	}
 	else
 	{
-		Local_ErrorState=NULL_POINTER;
+		Local_ErrorState=E_NULL_POINTER;
 	}
 	return Local_ErrorState;
 }
@@ -212,7 +209,7 @@ ErrorState_t Gpio_GetPortValue(Gpio_Port_t Copy_Port,u16* Copy_PortValue)
 	}
 	else
 	{
-		Local_ErrorState=NULL_POINTER;
+		Local_ErrorState=E_NULL_POINTER;
 	}
 	return Local_ErrorState;
 }
