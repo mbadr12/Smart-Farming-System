@@ -46,6 +46,7 @@ ErrorState_t I2c_Init(I2c_Handle_t *hi2c);
 ErrorState_t I2c_Master_Transmit(I2c_Handle_t *hi2c, u16 Copy_DevAddress, u8 *pData, u16 Copy_Size, u32 Copy_Timeout);
 ErrorState_t I2c_Master_Receive(I2c_Handle_t *hi2c, u16 Copy_DevAddress, u8 *pData, u16 Copy_Size, u32 Copy_Timeout);
 ErrorState_t I2C_Mem_Write(I2c_Handle_t *hi2c, u16 Copy_DevAddress, u16 Copy_MemAddress, u16 Copy_MemAddSize, u8 *pData, u16 Copy_Size, u32 Copy_Timeout);
+
 ErrorState_t I2c_Mem_Read(I2c_Handle_t *hi2c, u16 Copy_DevAddress, u16 Copy_MemAddress, u16 Copy_MemAddSize, u8 *pData, u16 Copy_Size, u16 Copy_Timeout);
 
 /* Control */
