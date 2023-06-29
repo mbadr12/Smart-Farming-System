@@ -48,7 +48,7 @@
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-Error_State_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_PeripheralClkMode);
+ErrorState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_PeripheralClkMode);
 
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId)        
@@ -60,7 +60,7 @@ Error_State_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Cop
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-Error_State_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId);
+ErrorState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId);
 
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
@@ -72,7 +72,7 @@ Error_State_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId);
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-Error_State_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr);
+ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr);
 
 /******************************************************************************
 * \Syntax          : ErroState_t RCC_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)        
@@ -83,12 +83,15 @@ Error_State_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rc
 * \Parameters (out): None
 * \Return value:   : ErroState_t
 *******************************************************************************/
-Error_State_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType);
-/*where is the implementation :)*/
+ErrorState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType);
+
 /*Configure Buses Prescaler (AHB,APB1,APB2)*/
 void Rcc_BusesPrescaler (void);
 
- 
+void Rcc_Mco1Enable(Rcc_Mco1Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler);
+
+void Rcc_Mco2Enable(Rcc_Mco2Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler);
+
 #endif  /* RCC_INTERFACE_H */
 
 /**********************************************************************************************************************

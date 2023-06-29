@@ -14,7 +14,7 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "STM32F446xx.h"
+#include "STM32F429xx.h"
 #include "Bit_Math.h"
 
 #include "Rcc_Interface.h"
@@ -30,23 +30,23 @@ static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
     /* If user passes NULL leave the PLL at default rest value initialization (PLL General Clock Output = 96Mhz)*/
     if(Copy_PllConfigPtr == NULL) return;
 }
- *
+
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode)        
+* \Syntax          : ErrorState_t RCC_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode)        
 * \Description     : Enable The clock to a peripheral and choose if in low power mode for the peripheral to
 *						continue working while in sleep mode.                                                                                                               
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_PeripheralId, Copy_LowePowerMode
 * \Parameters (out): None
-* \Return value:   : ErroState_t
+* \Return value:   : ErrorState_t
 *******************************************************************************/
-ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode){
-    ErroState_t Local_ErrorState = E_OK;
+ErrorState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_LowPowerMode){
+    ErrorState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
     u8 Local_BitIndex = Copy_PeripheralId % 32;
     if(Local_RegisterIndex > 4){
@@ -57,7 +57,7 @@ ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_
         switch(Local_RegisterIndex){
             case 0:
                 if(Local_BitIndex == RCC_AHB1_FLITF_LP || Local_BitIndex == RCC_AHB1_SRAM1_LP || Local_BitIndex == RCC_AHB1_SRAM2_LP){
-                    Local_ErrorState = E_RCC_INV_POWER_MODE;
+                    Local_ErrorState = E_WRONG_OPTION;
                 }
                 SET_BIT( RCC->AHB1ENR , Local_BitIndex);
                 break;
@@ -79,7 +79,7 @@ ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_
         switch(Local_RegisterIndex){
             case 0:
                 if(Local_BitIndex == RCC_AHB1_CCMDATARAM){
-                    Local_ErrorState = E_RCC_INV_POWER_MODE;
+                    Local_ErrorState = E_WRONG_OPTION;
                     break;
                 }
                 SET_BIT( RCC->AHB1LPENR , Local_BitIndex);
@@ -102,17 +102,17 @@ ErroState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy_
 }
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId)        
+* \Syntax          : ErrorState_t RCC_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId)        
 * \Description     : Disable any clock connected to a peripheral.
 *                                                                             
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_PeripheralId
 * \Parameters (out): None
-* \Return value:   : ErroState_t
+* \Return value:   : ErrorState_t
 *******************************************************************************/
-ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
-    ErroState_t Local_ErrorState = E_OK;
+ErrorState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
+    ErrorState_t Local_ErrorState = E_OK;
     u8 Local_RegisterIndex = Copy_PeripheralId/32;
     u8 Local_BitIndex = Copy_PeripheralId % 32;
     if(Local_RegisterIndex > 4){
@@ -153,24 +153,24 @@ ErroState_t Rcc_DisablePericlock(Rcc_PeripheralId_t Copy_PeripheralId){
 }
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
+* \Syntax          : ErrorState_t RCC_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr)        
 * \Description     : Turn on/off different clok sources. In stm32f429 I have 5 different clock sources:
 *                            1. HSI 2. HSE 3. PLL 4. PLLI2s 5. PLLSAI                                                   
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_PeripheralId
 * \Parameters (out): None
-* \Return value:   : ErroState_t
+* \Return value:   : ErrorState_t
 *******************************************************************************/
-ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
-    ErroState_t Local_ErrorState = E_OK;
+ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_PllConfig_t *Copy_PllConfigPtr){
+    ErrorState_t Local_ErrorState = E_OK;
     if(Copy_ClkState > 1){
         Local_ErrorState = E_WRONG_OPTION;
         return Local_ErrorState;
     }
     switch(Copy_ClkType){
         case RCC_HSE_CRYSTAL:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /*Enable Clock Security System*/
                 SET_BIT(RCC->CR, RCC_CR_CSSON);
@@ -190,7 +190,7 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
         }
 
         case RCC_HSE_RC:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /*Enable Clock Security System*/
                 SET_BIT(RCC->CR, RCC_CR_CSSON);
@@ -209,7 +209,7 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
             break;
         }
         case RCC_PLL:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLL */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -226,7 +226,7 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
             break;
         }
         case RCC_PLLI2S:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLLI2S */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -245,7 +245,7 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
             break;
         }
         case RCC_PLLSAI:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLLSAI */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -270,17 +270,17 @@ ErroState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc_
 }
 
 /******************************************************************************
-* \Syntax          : ErroState_t RCC_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)        
+* \Syntax          : ErrorState_t RCC_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)        
 * \Description     : Choose the source for the SYSCLK: 1. HSI 2. HSE 3. PLL
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
 * \Parameters (in) : Copy_ClkType
 * \Parameters (out): None
-* \Return value:   : ErroState_t
+* \Return value:   : ErrorState_t
 *******************************************************************************/
-ErroState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
+ErrorState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
 {
-	ErroState_t Local_ErrorSate = E_OK;
+	ErrorState_t Local_ErrorSate = E_OK;
 
 	switch (Copy_ClkType)
 	{
@@ -315,6 +315,25 @@ ErroState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
 }
 
 
+void Rcc_Mco1Enable(Rcc_Mco1Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler)
+{
+    /* Set source */
+    RCC->CFGR &= ~RCC_CFGR_MCO1_MSK;
+    RCC->CFGR |= (Copy_Src << RCC_CFGR_MCO1_POS);
+    /* Set Prescaler */
+    RCC->CFGR &= ~RCC_CFGR_MCO1PRE_MSK;
+    RCC->CFGR |= (Copy_Prescaler << RCC_CFGR_MCO1PRE_POS);
+}
+
+void Rcc_Mco2Enable(Rcc_Mco2Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler)
+{
+    /* Set source */
+    RCC->CFGR &= ~RCC_CFGR_MCO2_MSK;
+    RCC->CFGR |= (Copy_Src << RCC_CFGR_MCO2_POS);
+    /* Set Prescaler */
+    RCC->CFGR &= ~RCC_CFGR_MCO2PRE_MSK;
+    RCC->CFGR |= (Copy_Prescaler << RCC_CFGR_MCO2PRE_POS);
+}
 
 /**********************************************************************************************************************
  *  END OF FILE: Rcc_Program.c
