@@ -52,10 +52,22 @@
 #define		RCC_CFGR_PPRE2_1                      14
 #define		RCC_CFGR_PPRE2_2                      15
 
+/* Bit definitions */
+#define RCC_CFGR_MCO1_POS 21
+#define RCC_CFGR_MCO1_MSK 0x00600000
+
+#define RCC_CFGR_MCO1PRE_POS 24
+#define RCC_CFGR_MCO1PRE_MSK 0x07000000
+
+#define RCC_CFGR_MCO2_POS 30
+#define RCC_CFGR_MCO2_MSK 0xc0000000
+
+#define RCC_CFGR_MCO2PRE_POS 27
+#define RCC_CFGR_MCO2PRE_MSK 0x38000000
+
 /**********************************************************************************************************************
  *  LOCAL FUNCTION MACROS
  *********************************************************************************************************************/
-
 
 /**********************************************************************************************************************
  * LOCAL FUNCTION PROTOTYPES 

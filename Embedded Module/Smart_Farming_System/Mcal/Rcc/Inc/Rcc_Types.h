@@ -16,7 +16,7 @@
 /**********************************************************************************************************************
  * INCLUDES 
  *********************************************************************************************************************/
-#include "Lib/Std_Types.h"
+#include "Std_Types.h"
 
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
@@ -138,7 +138,30 @@ typedef struct{
   u8 NMF;
 } Rcc_PllConfig_t;
 
+typedef enum
+{
+  RCC_MCO_PS_1,
+  RCC_MCO_PS_2 = 4,
+  RCC_MCO_PS_3,
+  RCC_MCO_PS_4,
+  RCC_MCO_PS_5,
+} Rcc_McoPrescaler_t;
 
+typedef enum
+{
+  RCC_MCO1_HSI = 0,
+  RCC_MCO1_LSE,
+  RCC_MCO1_HSE,
+  RCC_MCO1_PLL,
+} Rcc_Mco1Src_t;
+
+typedef enum
+{
+  RCC_MCO2_SYSCLK = 0,
+  RCC_MCO2_PLLI2S,
+  RCC_MCO2_HSE,
+  RCC_MCO2_PLL,
+} Rcc_Mco2Src_t;
 
 #endif  /* RCC_TYPES_H */
 

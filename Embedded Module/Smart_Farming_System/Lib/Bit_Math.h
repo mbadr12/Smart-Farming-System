@@ -14,9 +14,10 @@
 #ifndef BIT_MATH_H_
 #define BIT_MATH_H_
 
-#define Set_Bit(Var,BitNo) 		(Var|=(1<<BitNo))
-#define Clr_Bit(Var,BitNo) 		(Var&=(~(1<<BitNo)))
-#define Toggle_Bit(Var,BitNo)	(Var^=(1<<BitNo))
-#define Get_Bit(Var,BitNo) 		((Var>>BitNo)&1)
+#define SET_BIT(Var,BitNo) 		(Var|=(1<<BitNo))
+#define CLR_BIT(Var,BitNo) 		(Var&=(~(1<<BitNo)))
+#define TOGGLE_BIT(Var,BitNo)	(Var^=(1<<BitNo))
+#define GET_BIT(Var,BitNo) 		((Var>>BitNo)&1)
+#define MODIFY_REG(reg, val, msk) reg = ((reg & ~msk) | (val))
 
 #endif
