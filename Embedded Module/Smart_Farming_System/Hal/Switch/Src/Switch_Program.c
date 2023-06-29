@@ -38,6 +38,7 @@
 *******************************************************************************/
 static bool IsSwitchConfigValid(Switch_Config_t *Copy_SwitchConfig)
 {
+	/*Handled in GPIO*/
     if ((Copy_SwitchConfig->Port > GPIO_PORTH) || (Copy_SwitchConfig->Port < GPIO_PORTA) 
         || (Copy_SwitchConfig->Pin > GPIO_PIN15) || (Copy_SwitchConfig->Pin < GPIO_PIN0)
         || (Copy_SwitchConfig->SwitchType > SWITCH_TEMPORARY) || (Copy_SwitchConfig->SwitchType < SWITCH_PERMANENT)

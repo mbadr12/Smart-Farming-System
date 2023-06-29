@@ -46,6 +46,13 @@ typedef enum
 
 typedef struct
 {
+	char* ClientId;
+	char* UserName;
+	char* Password;
+}Mqtt_Connect_t;
+
+typedef struct
+{
 	char* WifiName;
 	char* WifiPassword;
 	char* BrokerDNS;

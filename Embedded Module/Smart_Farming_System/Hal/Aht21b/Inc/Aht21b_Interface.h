@@ -53,7 +53,7 @@ ErrorState_t Aht21b_ReadTemperatureInCelsius(s8 *Copy_Temperature);
 * \Sync\Async      : Synchronous
 * \Reentrancy      : Non Reentrant
 * \Parameters (in) : None
-* \Parameters (out): Copy_Temperature   Pointer to return the enviornment relative humidity
+* \Parameters (out): Copy_Humidity   Pointer to return the enviornment relative humidity
 * \Return value:   : ErrorState_t
 *******************************************************************************/
 ErrorState_t Aht21b_ReadRelativeHumidity(u8 *Copy_Humidity);
