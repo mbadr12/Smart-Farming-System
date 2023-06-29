@@ -644,7 +644,7 @@ static ErrorState_t I2c_RequestMemoryRead(I2c_Handle_t *hi2c,
       /* Generate Stop */
       SET_BIT(pI2cx->CR1, I2C_CR1_STOP_Pos);
     }
-    return E_OK;
+    return E_NOK;
   }
 
   /* If Memory address size is 8Bit */

@@ -103,8 +103,9 @@ static ErrorState_t ReadSignals(void)
     /* Check the busy indication bit until it's idle and measurement is complete or timeout occurs */
     do
     {
-        /* Send a read request to get status byte */
-        Local_ErrorState = I2c_Master_Receive(&I2cHandle, SLAVE_ADDRESS_WITH_READ, &Local_StatusByte, 1, TIMEOUT_AMOUNT);
+        /* Receive frame from sensor (status byte + Humudity + Temprature) */
+        Local_ErrorState = I2c_Master_Receive(&I2cHandle, SLAVE_ADDRESS_WITH_READ, SignalsReceivingBuffer, Local_SignalNumberBytes , TIMEOUT_AMOUNT);
+        Local_StatusByte = SignalsReceivingBuffer[STATUS_BYTE];
     } while ((BUSY == (Local_StatusByte >> BUSY_INDICATION_BIT_POS)) && (--Local_TimeoutAmount));
     
     /* Check the timeout occurrence */
@@ -113,12 +114,6 @@ static ErrorState_t ReadSignals(void)
         Local_ErrorState = E_TIME_OUT;
     }
     
-    /* Assign the last value of the status byte to the reading buffer */
-    SignalsReceivingBuffer[STATUS_BYTE] = Local_StatusByte;
-
-    /* Send a read request, then get the temperature and relative humidity signals and CRC if needed */
-    Local_ErrorState = I2c_Master_Receive(&I2cHandle, SLAVE_ADDRESS_WITH_READ, &SignalsReceivingBuffer[1], (Local_SignalNumberBytes - 1), TIMEOUT_AMOUNT);
-
 #if CRC_STATE == ENABLED
     /* Calculate the CRC and if the data is corrupted fill it all with zeros */
     if (CalculateCRC8() != SignalsReceivingBuffer[CRC_BYTE])
