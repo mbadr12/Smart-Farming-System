@@ -23,13 +23,21 @@
 
 #define NULL			0
 
+#define ENABLE 1
+#define DISABLE 0
+
+#define SET 1
+#define RESET 0
+
+#define ON 1
+#define OFF 0
+
+#define HIGH 1
+#define LOW 0
+
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
  *********************************************************************************************************************/
-#define ENABLE 1
-#define DISABLE 0
-#define SET 1
-#define RESET 0
 
 typedef enum
 {
@@ -60,6 +68,7 @@ typedef enum
 	E_NOK,
 	E_NULL_POINTER,
 	E_WRONG_OPTION,
+    E_BUSY,
 	E_BUSY_FUNC,
 	E_TIME_OUT,
 	E_NO_RESPOSE,
