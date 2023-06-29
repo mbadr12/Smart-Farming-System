@@ -31,7 +31,7 @@ ErrorState_t Nvic_EnableIRQ(Nvic_IRQn_t Copy_IRQ){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    Set_Bit(NVIC->ISER[Local_RegOffset], Local_BitOffset);
+    SET_BIT(NVIC->ISER[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }
@@ -42,7 +42,7 @@ ErrorState_t Nvic_DisableIRQ(Nvic_IRQn_t Copy_IRQ){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    Set_Bit(NVIC->ICER[Local_RegOffset], Local_BitOffset);
+    SET_BIT(NVIC->ICER[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }
@@ -53,7 +53,7 @@ ErrorState_t Nvic_SetPendingIRQ(Nvic_IRQn_t Copy_IRQ){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    Set_Bit(NVIC->ISPR[Local_RegOffset], Local_BitOffset);
+    SET_BIT(NVIC->ISPR[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }
@@ -64,7 +64,7 @@ ErrorState_t Nvic_ClearPendingIRQ(Nvic_IRQn_t Copy_IRQ){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    Set_Bit(NVIC->ICPR[Local_RegOffset], Local_BitOffset);
+    SET_BIT(NVIC->ICPR[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }

@@ -72,7 +72,7 @@ typedef enum
 	E_BUSY_FUNC,
 	E_TIME_OUT,
 	E_NO_RESPOSE,
-	E_CONNECTION_FAILED
+	E_CONNECTION_FAILED,
 }ErrorState_t;
 
 typedef enum

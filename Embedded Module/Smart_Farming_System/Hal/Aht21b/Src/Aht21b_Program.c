@@ -153,7 +153,7 @@ static ErrorState_t InitRegs(u8 Copy_RegisterAddress)
     u8 Local_ThreeByteBuffer[3];
     
     /* Initialize the register inside module */
-    Local_ErrorState = I2C_Mem_Write(&I2cHandle, SLAVE_ADDRESS_WITH_WRITE, Copy_RegisterAddress, I2C_MEMADD_SIZE_8BIT, Local_Parameters, 2, TIMEOUT_AMOUNT);
+    Local_ErrorState = I2c_Mem_Write(&I2cHandle, SLAVE_ADDRESS_WITH_WRITE, Copy_RegisterAddress, I2C_MEMADD_SIZE_8BIT, Local_Parameters, 2, TIMEOUT_AMOUNT);
 
     /* Wait about 5 ms */
     SysTick_Delay(5);
@@ -163,7 +163,7 @@ static ErrorState_t InitRegs(u8 Copy_RegisterAddress)
     /* Wait about 10 ms */
     SysTick_Delay(10);
     /* Register command(no more detail in the sample code), then send the second and the third received bytes */
-    Local_ErrorState = I2C_Mem_Write(&I2cHandle, SLAVE_ADDRESS_WITH_WRITE, (0xB0 | Copy_RegisterAddress), I2C_MEMADD_SIZE_8BIT, Local_ThreeByteBuffer[1], 2, TIMEOUT_AMOUNT);
+    Local_ErrorState = I2c_Mem_Write(&I2cHandle, SLAVE_ADDRESS_WITH_WRITE, (0xB0 | Copy_RegisterAddress), I2C_MEMADD_SIZE_8BIT, &Local_ThreeByteBuffer[1], 2, TIMEOUT_AMOUNT);
 
     return Local_ErrorState;
 }

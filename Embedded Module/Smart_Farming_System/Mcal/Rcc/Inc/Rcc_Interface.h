@@ -84,11 +84,14 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
 * \Return value:   : ErroState_t
 *******************************************************************************/
 ErrorState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType);
-/*where is the implementation :)*/
+
 /*Configure Buses Prescaler (AHB,APB1,APB2)*/
 void Rcc_BusesPrescaler (void);
 
- 
+void Rcc_Mco1Enable(Rcc_Mco1Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler);
+
+void Rcc_Mco2Enable(Rcc_Mco2Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler);
+
 #endif  /* RCC_INTERFACE_H */
 
 /**********************************************************************************************************************

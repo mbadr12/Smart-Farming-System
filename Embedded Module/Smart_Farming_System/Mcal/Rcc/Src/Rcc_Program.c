@@ -30,7 +30,7 @@ static void Rcc_InitPLL(Rcc_PllConfig_t *Copy_PllConfigPtr){
     /* If user passes NULL leave the PLL at default rest value initialization (PLL General Clock Output = 96Mhz)*/
     if(Copy_PllConfigPtr == NULL) return;
 }
- *
+
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
@@ -57,7 +57,7 @@ ErrorState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy
         switch(Local_RegisterIndex){
             case 0:
                 if(Local_BitIndex == RCC_AHB1_FLITF_LP || Local_BitIndex == RCC_AHB1_SRAM1_LP || Local_BitIndex == RCC_AHB1_SRAM2_LP){
-                    Local_ErrorState = E_RCC_INV_POWER_MODE;
+                    Local_ErrorState = E_WRONG_OPTION;
                 }
                 SET_BIT( RCC->AHB1ENR , Local_BitIndex);
                 break;
@@ -79,7 +79,7 @@ ErrorState_t Rcc_EnablePericlock(Rcc_PeripheralId_t Copy_PeripheralId, bool Copy
         switch(Local_RegisterIndex){
             case 0:
                 if(Local_BitIndex == RCC_AHB1_CCMDATARAM){
-                    Local_ErrorState = E_RCC_INV_POWER_MODE;
+                    Local_ErrorState = E_WRONG_OPTION;
                     break;
                 }
                 SET_BIT( RCC->AHB1LPENR , Local_BitIndex);
@@ -170,7 +170,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
     }
     switch(Copy_ClkType){
         case RCC_HSE_CRYSTAL:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /*Enable Clock Security System*/
                 SET_BIT(RCC->CR, RCC_CR_CSSON);
@@ -190,7 +190,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
         }
 
         case RCC_HSE_RC:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /*Enable Clock Security System*/
                 SET_BIT(RCC->CR, RCC_CR_CSSON);
@@ -209,7 +209,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             break;
         }
         case RCC_PLL:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLL */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -226,7 +226,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             break;
         }
         case RCC_PLLI2S:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLLI2S */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -245,7 +245,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             break;
         }
         case RCC_PLLSAI:{
-            if(Copy_ClkState == STD_ON)
+            if(Copy_ClkState == ON)
             {
                 /* Configure PLLSAI */
                 RCC_InitPLL(Copy_PllConfigPtr);
@@ -315,6 +315,25 @@ ErrorState_t Rcc_SetSysClkSrc (Rcc_ClkType_t Copy_ClkType)
 }
 
 
+void Rcc_Mco1Enable(Rcc_Mco1Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler)
+{
+    /* Set source */
+    RCC->CFGR &= ~RCC_CFGR_MCO1_MSK;
+    RCC->CFGR |= (Copy_Src << RCC_CFGR_MCO1_POS);
+    /* Set Prescaler */
+    RCC->CFGR &= ~RCC_CFGR_MCO1PRE_MSK;
+    RCC->CFGR |= (Copy_Prescaler << RCC_CFGR_MCO1PRE_POS);
+}
+
+void Rcc_Mco2Enable(Rcc_Mco2Src_t Copy_Src, Rcc_McoPrescaler_t Copy_Prescaler)
+{
+    /* Set source */
+    RCC->CFGR &= ~RCC_CFGR_MCO2_MSK;
+    RCC->CFGR |= (Copy_Src << RCC_CFGR_MCO2_POS);
+    /* Set Prescaler */
+    RCC->CFGR &= ~RCC_CFGR_MCO2PRE_MSK;
+    RCC->CFGR |= (Copy_Prescaler << RCC_CFGR_MCO2PRE_POS);
+}
 
 /**********************************************************************************************************************
  *  END OF FILE: Rcc_Program.c

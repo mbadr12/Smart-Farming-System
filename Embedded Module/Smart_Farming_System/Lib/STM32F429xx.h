@@ -347,8 +347,6 @@ typedef struct{
 #define SPI2                    ((Spi_RegDef_t *)SPI2_BASE_ADDRESS)
 #define SPI3                    ((Spi_RegDef_t *)SPI3_BASE_ADDRESS)
 
-#endif		/* STM32F446XX_H */
-
 /************************** Spi Bit Definitions ***********************/
 
 /*******************  Bit definition for SPI_CR1 register  ********************/
