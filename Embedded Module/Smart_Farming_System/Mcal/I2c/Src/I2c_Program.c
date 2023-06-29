@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "Bit_Math.h"
-#include "STM32F446xx.h"
+#include "STM32F429xx.h"
 
 #include "I2c_Config.h"
 #include "I2c_Interface.h"

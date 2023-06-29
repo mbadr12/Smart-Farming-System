@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "Platform_Types.h"
-#include "STM32F446xx.h"
+#include "STM32F429xx.h"
 #include "Bit_Math.h"
 
 #include "Nvic_Interface.h"
