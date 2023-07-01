@@ -2,51 +2,36 @@
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
  *       Author:  Musa Mahmoud
- *	   	   File:  Pump_Types.h
+ *	   	   File:  Ldr_Private.h
  *		  Layer:  Hal
- *       Module:  Pump (Mini Water Pump)
+ *       Module:  Ldr
  *		Version:  1.0
  *	
- *  Description:  A header file that contains the types used to configure pump
+ *  Description:  A header file that contains local macros and functions used only in the program file of the ldr module and not needed outside the scope of this module.
  *  
  *********************************************************************************************************************/
 
-#ifndef PUMP_TYPES_H
-#define PUMP_TYPES_H
+#ifndef LDR_PRIVATE_H
+#define LDR_PRIVATE_H
 
 /**********************************************************************************************************************
- * INCLUDES
- *********************************************************************************************************************/
-#include "Std_Types.h"
-#include "Gpio_Types.h"
-
-/**********************************************************************************************************************
- *  GLOBAL DATA TYPES AND STRUCTURES
+ *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 
-/* Pump current state value */
-typedef enum
-{
-    PUMP_TURNED_OFF=0,
-    PUMP_TURNED_ON
-} Pump_State_t;
+/******************************************************************************
+* \Syntax          : static bool IsLdrConfigValid(Ldr_Config_t *Copy_LdrConfig)
+* \Description     : Check the Ldr configurations' values
+*
+* \Sync\Async      : Synchronous
+* \Reentrancy      : Non Reentrant
+* \Parameters (in) : Copy_LdrConfig    Pointer to structure of Ldr configuration
+* \Parameters (out): None
+* \Return value:   : bool
+*******************************************************************************/
+static bool IsLdrConfigValid(Ldr_Config_t *Copy_LdrConfig);
 
-/* Switch Activation Value */
-typedef enum
-{
-    PUMP_ACTIVE_LOW=0,
-    PUMP_ACTIVE_HIGH
-} Pump_Activation_t;
-
-/* Pump configuration structure */
-typedef struct
-{
-    Gpio_PinId_t PinId;
-    Pump_Activation_t ActivationType;
-} Pump_Config_t;
-
-#endif  /* PUMP_TYPES_H */
+#endif  /* LDR_PRIVATE_H */
 
 /**********************************************************************************************************************
- *  END OF FILE: Pump_Types.h
+ *  END OF FILE: Ldr_Private.h
  *********************************************************************************************************************/

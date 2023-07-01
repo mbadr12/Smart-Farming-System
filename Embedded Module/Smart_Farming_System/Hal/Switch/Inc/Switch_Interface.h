@@ -23,6 +23,18 @@
  *  GLOBAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 
+/******************************************************************************
+* \Syntax          : ErrorState_t Switch_Init(Switch_Config_t *Copy_SwitchConfig)
+* \Description     : Initialize the switch module to use external interrupt if configured
+*                                                                             
+* \Sync\Async      : Synchronous                                               
+* \Reentrancy      : Non Reentrant                                             
+* \Parameters (in) : Copy_SwitchConfig    Pointer to structure of switch configuration
+* \Parameters (out): None
+* \Return value:   : ErrorState_t
+*******************************************************************************/
+ErrorState_t Switch_Init(Switch_Config_t *Copy_SwitchConfig);
+
 #if (SOFTWARE_DEBOUNCING == ENABLED) && (DEBOUNCING_TECHNIQUE == WAIT_AND_DOUBLE_CHECK)
 /* Pointer to function for the delay used to debounce the switch */
 typedef void (*Switch_Callback)(double);

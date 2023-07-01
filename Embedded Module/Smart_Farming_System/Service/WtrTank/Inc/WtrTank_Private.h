@@ -2,51 +2,42 @@
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
  *       Author:  Musa Mahmoud
- *	   	   File:  Pump_Types.h
- *		  Layer:  Hal
- *       Module:  Pump (Mini Water Pump)
+ *	   	   File:  WtrTank_Private.c
+ *		  Layer:  Service
+ *       Module:  WtrTank
  *		Version:  1.0
  *	
- *  Description:  A header file that contains the types used to configure pump
+ *  Description:  A header file that contains private functions used only in the program file and not needed outside this module
  *  
  *********************************************************************************************************************/
 
-#ifndef PUMP_TYPES_H
-#define PUMP_TYPES_H
+#ifndef WTRTANK_PRIVATE_H
+#define WTRTANK_PRIVATE_H
 
 /**********************************************************************************************************************
- * INCLUDES
+ *  LOCAL MACROS CONSTANT\FUNCTION
  *********************************************************************************************************************/
-#include "Std_Types.h"
-#include "Gpio_Types.h"
+#define USED 					1
+#define NOT_USED             	2
 
 /**********************************************************************************************************************
- *  GLOBAL DATA TYPES AND STRUCTURES
+ *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 
-/* Pump current state value */
-typedef enum
-{
-    PUMP_TURNED_OFF=0,
-    PUMP_TURNED_ON
-} Pump_State_t;
+/******************************************************************************
+* \Syntax          : static bool IsWaterTankConfigValid(WtrTank_Config_t *Copy_WaterTankConfig)
+* \Description     : Check the water tank configurations' values
+*
+* \Sync\Async      : Synchronous
+* \Reentrancy      : Non Reentrant
+* \Parameters (in) : Copy_WaterTankConfig    Pointer to structure of water tank configuration
+* \Parameters (out): None
+* \Return value:   : bool
+*******************************************************************************/
+static bool IsWaterTankConfigValid(WtrTank_Config_t *Copy_WaterTankConfig);
 
-/* Switch Activation Value */
-typedef enum
-{
-    PUMP_ACTIVE_LOW=0,
-    PUMP_ACTIVE_HIGH
-} Pump_Activation_t;
-
-/* Pump configuration structure */
-typedef struct
-{
-    Gpio_PinId_t PinId;
-    Pump_Activation_t ActivationType;
-} Pump_Config_t;
-
-#endif  /* PUMP_TYPES_H */
+#endif /* WTRTANK_PRIVATE_H */
 
 /**********************************************************************************************************************
- *  END OF FILE: Pump_Types.h
+ *  END OF FILE: WtrTank_Private.h
  *********************************************************************************************************************/

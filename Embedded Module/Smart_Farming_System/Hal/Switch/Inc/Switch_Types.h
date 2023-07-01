@@ -18,6 +18,8 @@
  * INCLUDES
  *********************************************************************************************************************/
 #include "Std_Types.h"
+#include "Gpio_Types.h"
+#include "Exti_Types.h"
 
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
@@ -44,13 +46,21 @@ typedef enum
     SWITCH_NOT_PRESSED
 } Switch_State_t;
 
+/* Interrupt enable type */
+typedef enum
+{
+    SWITCH_INT_DISABLE=0,
+    SWITCH_INT_ENABLE
+} Switch_IntEnable_t;
+
 /* Switch configuration structure */
 typedef struct
 {
-    u8 Port;
-    u8 Pin;
+    Gpio_PinId_t PinId;
     Switch_Type_t SwitchType;
     Switch_Pull_t PullType;
+    Switch_IntEnable_t InterruptEnable;
+    Exti_PinConfig_t *ExtiPinConfig;
 } Switch_Config_t;
 
 #endif /* SWITCH_TYPES_H */

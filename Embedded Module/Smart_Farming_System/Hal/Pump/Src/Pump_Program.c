@@ -37,8 +37,7 @@
 *******************************************************************************/
 static bool IsPumpConfigValid(Pump_Config_t *Copy_PumpConfig)
 {
-    if ((Copy_PumpConfig->Port > GPIO_PORTH) || (Copy_PumpConfig->Port < GPIO_PORTA)
-        || (Copy_PumpConfig->Pin > GPIO_PIN15) || (Copy_PumpConfig->Pin < GPIO_PIN0)
+    if ((Copy_PumpConfig->PinId > GPIO_PIN_K15) || (Copy_PumpConfig->PinId < GPIO_PIN_A0)
         || (Copy_PumpConfig->ActivationType > PUMP_ACTIVE_HIGH)|| (Copy_PumpConfig->ActivationType < PUMP_ACTIVE_LOW))
     {
         return FALSE;
@@ -63,6 +62,8 @@ static bool IsPumpConfigValid(Pump_Config_t *Copy_PumpConfig)
 *******************************************************************************/
 ErrorState_t Pump_TurnOn(Pump_Config_t *Copy_PumpConfig)
 {
+    ErrorState_t Local_ErrorState = E_OK;
+
     /* Check the function arguments */
     if (NULL == Copy_PumpConfig)
     {
@@ -75,9 +76,9 @@ ErrorState_t Pump_TurnOn(Pump_Config_t *Copy_PumpConfig)
     
     /* Turn the switch on depending on its type: If PUMP_ACTIVE_HIGH switch needs a logical one to be enabled
                                                  If PUMP_ACTIVE_LOW switch needs a logical zero to be enabled */
-    DIO_u8SetPinValue(Copy_PumpConfig->Port, Copy_PumpConfig->Pin, Copy_PumpConfig->ActivationType);
+    Local_ErrorState = Gpio_WritePin(Copy_PumpConfig->PinId, Copy_PumpConfig->ActivationType);
 
-    return E_OK;
+    return Local_ErrorState;
 }
 
 /******************************************************************************
@@ -92,6 +93,8 @@ ErrorState_t Pump_TurnOn(Pump_Config_t *Copy_PumpConfig)
 *******************************************************************************/
 ErrorState_t Pump_TurnOff(Pump_Config_t *Copy_PumpConfig)
 {
+    ErrorState_t Local_ErrorState = E_OK;
+
     /* Check the function arguments */
     if (NULL == Copy_PumpConfig)
     {
@@ -104,9 +107,9 @@ ErrorState_t Pump_TurnOff(Pump_Config_t *Copy_PumpConfig)
     
     /* Turn the switch off depending on its type: If PUMP_ACTIVE_HIGH switch needs a logical zero to be disabled
                                                   If PUMP_ACTIVE_LOW switch needs a logical one to be disabled */
-    DIO_u8SetPinValue(Copy_PumpConfig->Port, Copy_PumpConfig->Pin, !(Copy_PumpConfig->ActivationType));
+    Local_ErrorState = Gpio_WritePin(Copy_PumpConfig->PinId, !(Copy_PumpConfig->ActivationType));
 
-    return E_OK;
+    return Local_ErrorState;
 }
 
 /******************************************************************************
@@ -136,27 +139,27 @@ ErrorState_t Pump_GetState(Pump_Config_t *Copy_PumpConfig, u8 *Copy_PumpState)
     
     /* Get the pump state depending on its type: If PUMP_ACTIVE_HIGH pump state will turned on if pin is high, turned off if pin is low 
                                                  If PUMP_ACTIVE_LOW pump state will turned on if pin is low, turned off if pin is high  */
-    Local_ErrorState = DIO_u8GetPinValue(Copy_PumpConfig->Port, Copy_PumpConfig->Pin, &Local_PinValue);
+    Local_ErrorState = Gpio_ReadPin(Copy_PumpConfig->PinId, &Local_PinValue);
 
     /* Get the pump state for each type of electrical switches */
     if (PUMP_ACTIVE_HIGH == Copy_PumpConfig->ActivationType)
     {
-        if (GPIO_PIN_HIGH == Local_PinValue)
+        if (GPIO_HIGH == Local_PinValue)
         {
             *Copy_PumpState = PUMP_TURNED_ON;
         }
-        else if (GPIO_PIN_LOW == Local_PinValue)
+        else if (GPIO_LOW == Local_PinValue)
         {
             *Copy_PumpState = PUMP_TURNED_OFF;
         }
     }
     else if (PUMP_ACTIVE_LOW == Copy_PumpConfig->ActivationType)
     {
-        if (GPIO_PIN_LOW == Local_PinValue)
+        if (GPIO_LOW == Local_PinValue)
         {
             *Copy_PumpState = PUMP_TURNED_ON;
         }
-        else if (GPIO_PIN_HIGH == Local_PinValue)
+        else if (GPIO_HIGH == Local_PinValue)
         {
             *Copy_PumpState = PUMP_TURNED_OFF;
         }

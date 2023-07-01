@@ -1,13 +1,13 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *       Author:  - Musa Mahmoud
- *	   	   File:  - Switch_Program.c
- *		  Layer:  - Hal
- *       Module:  - Switch
- *		Version:  - 1.0
+ *       Author:  Musa Mahmoud
+ *	   	   File:  Switch_Program.c
+ *		  Layer:  Hal
+ *       Module:  Switch
+ *		Version:  1.0
  *	
- *  Description:  - A switch driver to get the switch state(pressed or not pressed) however the pulling type is
+ *  Description:  A switch driver to get the switch state(pressed or not pressed) however the pulling type is
  *  
  *********************************************************************************************************************/
 
@@ -17,6 +17,7 @@
 #include "Std_Types.h"
 
 #include "Gpio_Interface.h"
+#include "Exti_Interface.h"
 
 #include "Switch_Config.h"
 #include "Switch_Private.h"
@@ -38,8 +39,7 @@
 *******************************************************************************/
 static bool IsSwitchConfigValid(Switch_Config_t *Copy_SwitchConfig)
 {
-    if ((Copy_SwitchConfig->Port > GPIO_PORTH) || (Copy_SwitchConfig->Port < GPIO_PORTA) 
-        || (Copy_SwitchConfig->Pin > GPIO_PIN15) || (Copy_SwitchConfig->Pin < GPIO_PIN0)
+    if ((Copy_SwitchConfig->PinId > GPIO_PIN_K15) || (Copy_SwitchConfig->PinId < GPIO_PIN_A0)
         || (Copy_SwitchConfig->SwitchType > SWITCH_TEMPORARY) || (Copy_SwitchConfig->SwitchType < SWITCH_PERMANENT)
         || (Copy_SwitchConfig->PullType > SWITCH_PULL_DOWN) || (Copy_SwitchConfig->PullType < SWITCH_PULL_UP))
     {
@@ -52,6 +52,30 @@ static bool IsSwitchConfigValid(Switch_Config_t *Copy_SwitchConfig)
 /**********************************************************************************************************************
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
+
+/******************************************************************************
+* \Syntax          : ErrorState_t Switch_Init(Switch_Config_t *Copy_SwitchConfig)
+* \Description     : Initialize the switch module to use external interrupt if configured
+*                                                                             
+* \Sync\Async      : Synchronous                                               
+* \Reentrancy      : Non Reentrant                                             
+* \Parameters (in) : Copy_SwitchConfig    Pointer to structure of switch configuration
+* \Parameters (out): None
+* \Return value:   : ErrorState_t
+*******************************************************************************/
+ErrorState_t Switch_Init(Switch_Config_t *Copy_SwitchConfig)
+{
+    ErrorState_t Local_ErrorState = E_OK;
+
+    /* Check if the pin interrupt is enabled then initialize the EXTI and enable it */
+    if (SWITCH_INT_ENABLE == Copy_SwitchConfig->InterruptEnable)
+    {
+        Local_ErrorState = Exti_PinInit(Copy_SwitchConfig->ExtiPinConfig);
+        Exti_IntEnable(Copy_SwitchConfig->ExtiPinConfig->Pin);
+    }
+
+    return Local_ErrorState;
+}
 
 #if (SOFTWARE_DEBOUNCING == ENABLED) && (DEBOUNCING_TECHNIQUE == WAIT_AND_DOUBLE_CHECK)
 /******************************************************************************
@@ -76,7 +100,7 @@ ErrorState_t Switch_GetStateDebounce(Switch_Config_t *Copy_SwitchConfig, Switch_
     {
         return E_NULL_POINTER;
     }
-    else if (!IsSwitchConfigValid(Copy_SwitchConfig))
+    else if (!IsSwitchConfigValid(Copy_SwitchConfig) || (SWITCH_PERMANENT == Copy_SwitchConfig->SwitchType))
     {
         return E_WRONG_OPTION;
     }
@@ -86,34 +110,29 @@ ErrorState_t Switch_GetStateDebounce(Switch_Config_t *Copy_SwitchConfig, Switch_
     if (SWITCH_TEMPORARY == Copy_SwitchConfig->SwitchType)
     {   
         /* Get the pin value and debouncing using wait and double check technique */
-        Local_ErrorState = DIO_u8GetPinValue(Copy_SwitchConfig->Port, Copy_SwitchConfig->Pin, &Local_u8PinValue);
+        Local_ErrorState = Gpio_ReadPin(Copy_SwitchConfig->PinId, &Local_u8PinValue);
         Delay(Copy_DelayAmount);
-        Local_ErrorState = DIO_u8GetPinValue(Copy_SwitchConfig->Port, Copy_SwitchConfig->Pin, &Local_u8PinValue);
-    }
-    else if (SWITCH_PERMANENT == Copy_SwitchConfig->SwitchType)
-    {
-        /* Get the pin value */
-        Local_ErrorState = DIO_u8GetPinValue(Copy_SwitchConfig->Port, Copy_SwitchConfig->Pin, &Local_u8PinValue);
+        Local_ErrorState = Gpio_ReadPin(Copy_SwitchConfig->PinId, &Local_u8PinValue);
     }
 
     if (SWITCH_PULL_UP == Copy_SwitchConfig->PullType)
     {
-        if (GPIO_PIN_LOW == Local_u8PinValue)
+        if (GPIO_LOW == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_PRESSED;
         }
-        else if (GPIO_PIN_HIGH == Local_u8PinValue)
+        else if (GPIO_HIGH == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_NOT_PRESSED;
         }
     }
     else if (SWITCH_PULL_DOWN == Copy_SwitchConfig->PullType)
     {
-        if(GPIO_PIN_LOW == Local_u8PinValue)
+        if(GPIO_LOW == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_NOT_PRESSED;
         }
-        else if (GPIO_PIN_HIGH == Local_u8PinValue)
+        else if (GPIO_HIGH == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_PRESSED;
         }
@@ -150,26 +169,26 @@ ErrorState_t Switch_GetState(Switch_Config_t *Copy_SwitchConfig, Switch_State_t 
     }
 
     /* Get the pin value */
-    Local_ErrorState = DIO_u8GetPinValue(Copy_SwitchConfig->Port, Copy_SwitchConfig->Pin, &Local_u8PinValue);
+    Local_ErrorState = Gpio_ReadPin(Copy_SwitchConfig->PinId, &Local_u8PinValue);
 
     if (SWITCH_PULL_UP == Copy_SwitchConfig->PullType)
     {
-        if (GPIO_PIN_LOW == Local_u8PinValue)
+        if (GPIO_LOW == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_PRESSED;
         }
-        else if (GPIO_PIN_HIGH == Local_u8PinValue)
+        else if (GPIO_HIGH == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_NOT_PRESSED;
         }
     }
     else if (SWITCH_PULL_DOWN == Copy_SwitchConfig->PullType)
     {
-        if(GPIO_PIN_LOW == Local_u8PinValue)
+        if(GPIO_LOW == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_NOT_PRESSED;
         }
-        else if (GPIO_PIN_HIGH == Local_u8PinValue)
+        else if (GPIO_HIGH == Local_u8PinValue)
         {
             *Copy_SwitchState = SWITCH_PRESSED;
         }

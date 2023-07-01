@@ -37,8 +37,7 @@
 *******************************************************************************/
 static bool IsValveConfigValid(Valve_Config_t *Copy_ValveConfig)
 {
-    if ((Copy_ValveConfig->Port > GPIO_PORTH) || (Copy_ValveConfig->Port < GPIO_PORTA)
-        || (Copy_ValveConfig->Pin > GPIO_PIN15) || (Copy_ValveConfig->Pin < GPIO_PIN0)
+    if ((Copy_ValveConfig->PinId > GPIO_PIN_K15) || (Copy_ValveConfig->PinId < GPIO_PIN_A0)
         || (Copy_ValveConfig->ActivationType > VALVE_ACTIVE_HIGH)|| (Copy_ValveConfig->ActivationType < VALVE_ACTIVE_LOW))
     {
         return FALSE;
@@ -77,7 +76,7 @@ ErrorState_t Valve_Open(Valve_Config_t *Copy_ValveConfig)
     
     /* Turn the switch on depending on its type: If VALVE_ACTIVE_HIGH switch needs a logical one to be enabled
                                                  If VALVE_ACTIVE_LOW switch needs a logical zero to be enabled */
-    Local_ErrorState = DIO_u8SetPinValue(Copy_ValveConfig->Port, Copy_ValveConfig->Pin, Copy_ValveConfig->ActivationType);
+    Local_ErrorState = Gpio_WritePin(Copy_ValveConfig->PinId, Copy_ValveConfig->ActivationType);
 
     return Local_ErrorState;
 }
@@ -108,7 +107,7 @@ ErrorState_t Valve_Close(Valve_Config_t *Copy_ValveConfig)
     
     /* Turn the switch on depending off its type: If VALVE_ACTIVE_HIGH switch needs a logical zero to be disabled
                                                   If VALVE_ACTIVE_LOW switch needs a logical one to be disabled */
-    Local_ErrorState = DIO_u8SetPinValue(Copy_ValveConfig->Port, Copy_ValveConfig->Pin, !(Copy_ValveConfig->ActivationType));
+    Local_ErrorState = Gpio_WritePin(Copy_ValveConfig->PinId, !(Copy_ValveConfig->ActivationType));
 
     return Local_ErrorState;
 }
@@ -140,27 +139,27 @@ ErrorState_t Valve_GetState(Valve_Config_t *Copy_ValveConfig, u8 *Copy_ValveStat
     
     /* Get the valve state depending on its type: If VALVE_ACTIVE_HIGH valve state will opened if pin is high, closed if pin is low
                                                   If VALVE_ACTIVE_LOW valve state will opened if pin is low, closed if pin is high */
-    Local_ErrorState = DIO_u8GetPinValue(Copy_ValveConfig->Port, Copy_ValveConfig->Pin, &Local_PinValue);
+    Local_ErrorState = Gpio_ReadPin(Copy_ValveConfig->PinId, &Local_PinValue);
 
     /* Get the valve state for each type of electrical switches */
     if (VALVE_ACTIVE_HIGH == Copy_ValveConfig->ActivationType)
     {
-        if (GPIO_PIN_HIGH == Local_PinValue)
+        if (GPIO_HIGH == Local_PinValue)
         {
             *Copy_ValveState = VALVE_OPENED;
         }
-        else if (GPIO_PIN_LOW == Local_PinValue)
+        else if (GPIO_LOW == Local_PinValue)
         {
             *Copy_ValveState = VALVE_CLOSED;
         }
     }
     else if (VALVE_ACTIVE_LOW == Copy_ValveConfig->ActivationType)
     {
-        if (GPIO_PIN_LOW == Local_PinValue)
+        if (GPIO_LOW == Local_PinValue)
         {
             *Copy_ValveState = VALVE_OPENED;
         }
-        else if (GPIO_PIN_HIGH == Local_PinValue)
+        else if (GPIO_HIGH == Local_PinValue)
         {
             *Copy_ValveState = VALVE_CLOSED;
         }

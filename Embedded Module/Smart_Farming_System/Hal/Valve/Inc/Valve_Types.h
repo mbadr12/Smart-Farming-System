@@ -18,6 +18,7 @@
  * INCLUDES
  *********************************************************************************************************************/
 #include "Std_Types.h"
+#include "Gpio_Types.h"
 
 /**********************************************************************************************************************
  *  GLOBAL DATA TYPES AND STRUCTURES
@@ -40,8 +41,7 @@ typedef enum
 /* Valve configuration structure */
 typedef struct
 {
-    u8 Port;
-    u8 Pin;
+    Gpio_PinId_t PinId;
     Valve_Activation_t ActivationType;
 } Valve_Config_t;
 
