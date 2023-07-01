@@ -121,7 +121,7 @@ typedef enum {
   RCC_PLL_SRC_HSE,
 }Rcc_PllSrc_t;
 
-typedef struct Rcc_PllConfig_t{
+typedef struct{
   /* Select which PLL you want to configure */
   Rcc_PllType_t PllType;
   /* Select the PLL source */

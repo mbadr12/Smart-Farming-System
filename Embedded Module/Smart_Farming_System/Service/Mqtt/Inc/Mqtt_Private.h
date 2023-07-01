@@ -29,7 +29,9 @@
 
 #define PROTOCOL_LEVEL				0x04
 
-#define CONNECT_FLAG				0x02
+#define USERNAMEFLAG				0x6
+
+#define PASSWORDFLAG				0x07
 
 #define KAT							0xff
 
@@ -60,6 +62,8 @@
 #define DATA_INDEX					0x07
 
 #define BROKER_REPLY_LEN			0x0C
+
+#define IDENTITY_BYTES				0x02
 
 /**********************************************************************************************************************
  *  LOCAL FUNCTION PROTOTYPES

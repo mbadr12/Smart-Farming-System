@@ -145,12 +145,13 @@ static void Mqtt_EncodeRemLen(u16 Copy_RemLen)
  * \Parameters (out): None
  * \Return value:   : ErrorState_t
  *******************************************************************************/
-ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,char* Copy_ClientId, Mqtt_EspConnection* Copy_EspConfig)
+ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,Mqtt_Connect_t* Copy_Connect, Mqtt_EspConnection* Copy_EspConfig)
 {
 	ErrorState_t Local_ErrorState=E_OK;
 	u16 Local_Len=0;
+	u8 Local_ConnectFlag=0x02;
 	bool Local_Result=TRUE;
-	if((Copy_ClientId == NULL) || (Copy_EspConfig == NULL))
+	if((Copy_Connect == NULL) || (Copy_EspConfig == NULL))
 	{
 		Local_ErrorState=E_NULL_POINTER;
 	}
@@ -162,11 +163,25 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,char* Copy_ClientId, Mqtt
 		Local_ErrorState=Esp_ConnectWifi(Copy_UsartNum, Copy_EspConfig->WifiName, Copy_EspConfig->WifiPassword);
 		if(Local_ErrorState == E_OK)
 		{
+			Mqtt_PacketIndex=0;
 			/*Start composition of the connect Packet by the fixed header*/
 			/*Start with the Packet type*/
 			Mqtt_Packet[Mqtt_PacketIndex++]=CONNECT_PACKET;
 			/*Calculate the Remaining length*/
 			Local_Len=VAR_HEADER_LEN+UTF_LEN_BYTES + Mqtt_Strlen(Copy_ClientId);
+			/*Add username and password to remaining length if there*/
+			if(Copy_Connect->UserName != NULL)
+			{
+				Local_Len+=(IDENTITY_BYTES+Mqtt_Strlen(Copy_Connect->UserName);
+				/*Set username flag in connect flags*/
+				Local_ConnectFlag |= 1<< USERNAMEFLAG;
+			}
+			if(Copy_Connect->Password != NULL)
+			{
+				Local_Len+=(IDENTITY_BYTES+Mqtt_Strlen(Copy_Connect->Password);
+				/*Set Password flag in connect flags*/
+				Local_ConnectFlag |= 1<<PASSWORDFLAG;
+			}
 			Mqtt_EncodeRemLen(Local_Len);
 			/*Put the variable Header*/
 			/*Put the Length of protocol Name as MSB LSB*/
@@ -179,7 +194,7 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,char* Copy_ClientId, Mqtt
 			/*Protocol Level*/
 			Mqtt_Packet[Mqtt_PacketIndex++]=PROTOCOL_LEVEL;
 			/*Connect Flags for Public broker*/
-			Mqtt_Packet[Mqtt_PacketIndex++]=CONNECT_FLAG;
+			Mqtt_Packet[Mqtt_PacketIndex++]=Local_ConnectFlag;
 			/*Put Keep alive time as Max Value*/
 			Mqtt_Packet[Mqtt_PacketIndex++]=KAT;
 			Mqtt_Packet[Mqtt_PacketIndex++]=KAT;
@@ -191,6 +206,26 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,char* Copy_ClientId, Mqtt
 			/*Put the ClientId*/
 			Mqtt_StrCopy((Mqtt_Packet+Mqtt_PacketIndex), Copy_ClientId);
 			Mqtt_PacketIndex+=Local_Len;
+			if(Copy_Connect->UserName != NULL)
+			{
+				/*Put the Length of username as MSB LSB*/
+				Local_Len=Mqtt_Strlen(Copy_Connect->UserName);
+				Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len>>BYTE);
+				Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len);
+				/*Put the username*/
+				Mqtt_StrCopy((Mqtt_Packet+Mqtt_PacketIndex), Copy_Connect->UserName);
+				Mqtt_PacketIndex+=Local_Len;
+			}
+			if(Copy_Connect->Password != NULL)
+			{
+				/*Put the Length of Password as MSB LSB*/
+				Local_Len=Mqtt_Strlen(Copy_Connect->Password);
+				Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len>>BYTE);
+				Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len);
+				/*Put the ClientId*/
+				Mqtt_StrCopy((Mqtt_Packet+Mqtt_PacketIndex), Copy_Connect->Password);
+				Mqtt_PacketIndex+=Local_Len;
+			}
 			/*Initiate TCP connection between Wi-Fi module and the broker*/
 			do
 			{
@@ -341,7 +376,7 @@ ErrorState_t Mqtt_Subscribe(Mqtt_UsartNum Copy_UsartNum, char* Copy_TopicName, M
 	}
 	return Local_ErrorState;
 }
-/* To be done if needed
+/* TODO : : if needed
 ErrorState_t Mqtt_ReceiveSubData(Mqtt_UsartNum Copy_UsartNum, char* Copy_TopicName, u8* Copy_Container, u8 Copy_MsgLen)
 {
 
