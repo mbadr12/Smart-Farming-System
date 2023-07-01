@@ -25,7 +25,7 @@
 
 /******************************************************************************
 * \Syntax          : ErrorState_t WtrTank_Init(WtrTank_Config_t *Copy_WaterTankConfig)
-* \Description     : Initialize the FC-28 module
+* \Description     : Initialize the water tank module to use external interrupt if configured
 *                                                                             
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
