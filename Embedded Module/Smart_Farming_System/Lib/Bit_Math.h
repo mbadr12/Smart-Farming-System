@@ -18,6 +18,6 @@
 #define CLR_BIT(Var,BitNo) 		(Var&=(~(1<<BitNo)))
 #define TOGGLE_BIT(Var,BitNo)	(Var^=(1<<BitNo))
 #define GET_BIT(Var,BitNo) 		((Var>>BitNo)&1)
-#define MODIFY_REG(reg, val, msk) reg = ((reg & ~msk) | (val))
+#define MODIFY_REG(reg, val, msk) reg = ((reg & ~(msk)) | (val))
 
 #endif
