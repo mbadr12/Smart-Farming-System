@@ -255,7 +255,7 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,Mqtt_Connect_t* Copy_Conn
 ErrorState_t Mqtt_Publish(Mqtt_UsartNum Copy_UsartNum, Mqtt_Publish_t* Copy_PubPacket)
 {
 	ErrorState_t Local_ErrorState=E_OK;
-	u16 Local_Len=0;
+	u32 Local_Len=0;
 	bool Local_Result=TRUE;
 	static u16 Local_PacketId=0;
 	if(Copy_PubPacket == NULL)

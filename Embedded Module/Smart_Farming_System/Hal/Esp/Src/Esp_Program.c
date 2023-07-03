@@ -14,7 +14,7 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
-#include "Bit_Math.h"
+#include "BIT_MATH.h"
 
 #include "Usart_Interface.h"
 #include "Esp_Interface.h"
@@ -278,10 +278,11 @@ ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, 
 			Esp_Delay(5);
 			/*Validate connection*/
 			Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, 17);
-			Local_Reply = Esp_ValidateCmd(Esp_Response, ESP_SERVER_CONNECTED);
+			Esp_Delay(1100);
+			Local_Reply = Esp_ValidateCmd(Esp_Response, ESP_ERROR);
 			Local_Counter++;
 		}
-		while((Local_Reply==FALSE) && (Local_Counter < ESP_TIMEOUT));
+		while((Local_Reply==TRUE) && (Local_Counter < ESP_TIMEOUT));
 		if(Local_Counter== ESP_TIMEOUT)
 		{
 			Local_ErrorState=E_CONNECTION_FAILED;
@@ -302,7 +303,6 @@ ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, 
  * \Parameters (out): None
  * \Return value:   : ErrorState_t
  *******************************************************************************/
-
 ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
 {
 	ErrorState_t Local_ErrorState=E_OK;
@@ -335,6 +335,107 @@ ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_Da
 		{
 			Local_ErrorState=E_NOK;
 		}
+	}
+	return Local_ErrorState;
+}
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Esp_SendDataWithCont(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength, u16 Copy_InitialLength)
+ * \Description     : Send Data to the server initial send
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   		The USART the ESP connected to
+ * 					  Copy_Data		  		The Data to be sent to the server
+ * 					  Copy_DataLength 		The length of Data to be sent to server
+ * 					  Copy_InitialLength	The initial Data length
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_SendDataWithCont(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength, u16 Copy_InitialLength)
+{
+	ErrorState_t Local_ErrorState=E_OK;
+	bool Local_Reply=TRUE;
+	char Local_NumStr[6]={0};
+	if(Copy_Data == NULL)
+	{
+		Local_ErrorState=E_NULL_POINTER;
+	}
+	else
+	{
+		/*send command to set the length of data will be sent*/
+		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "AT+CIPSEND=");
+		/*Add 2 to send \r\n at the end of data*/
+		Esp_ConvertNumToStr(Copy_DataLength, Local_NumStr);
+		/*send the length of data*/
+		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, Local_NumStr);
+		Local_ErrorState=Usart_SendStringSynch(Copy_UsartNum, "\r\n");
+		/*check for the configuration is done*/
+		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, ESP_SEND_REPLY);
+		Local_Reply=Esp_ValidateCmd(Esp_Response, ESP_REPLY);
+		if(Local_Reply == TRUE)
+		{
+			/*Send Data*/
+			Local_ErrorState=Usart_SendBufferSynch(Copy_UsartNum, Copy_Data, Copy_InitialLength);
+		}
+		else
+		{
+			Local_ErrorState=E_NOK;
+		}
+	}
+	return Local_ErrorState;
+}
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Esp_ContSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+ * \Description     : Continue Sending Data to the server
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   The USART the ESP connected to
+ * 					  Copy_Data		  The Data to be sent to the server
+ * 					  Copy_DataLength The length of Data to be sent to server
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_ContSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+{
+	ErrorState_t Local_ErrorState=E_OK;
+	if(Copy_Data == NULL)
+	{
+		Local_ErrorState=E_NULL_POINTER;
+	}
+	else
+	{
+		Local_ErrorState=Usart_SendBufferSynch(Copy_UsartNum, Copy_Data, Copy_DataLength);
+	}
+	return Local_ErrorState;
+}
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Esp_EndSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+ * \Description     : last Sending Data to the server
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   The USART the ESP connected to
+ * 					  Copy_Data		  The Data to be sent to the server
+ * 					  Copy_DataLength The length of Data to be sent to server
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_EndSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+{
+	ErrorState_t Local_ErrorState=E_OK;
+	if(Copy_Data == NULL)
+	{
+		Local_ErrorState=E_NULL_POINTER;
+	}
+	else
+	{
+		Local_ErrorState=Usart_SendBufferSynch(Copy_UsartNum, Copy_Data, Copy_DataLength);
+		Esp_Delay(5);
+		Local_ErrorState=Usart_ReceiveBufferSynch(Copy_UsartNum, Esp_Response, ESP_SEND_ACK);
 	}
 	return Local_ErrorState;
 }
