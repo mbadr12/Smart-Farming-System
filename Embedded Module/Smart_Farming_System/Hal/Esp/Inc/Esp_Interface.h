@@ -78,6 +78,49 @@ ErrorState_t Esp_ConnectServer(Esp_UsartNum Copy_UsartNum, char* Copy_ServerIp, 
 ErrorState_t Esp_SendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength);
 
 /******************************************************************************
+ * \Syntax          : ErrorState_t Esp_SendDataWithCont(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength, u16 Copy_InitialLength)
+ * \Description     : Send Data to the server initial send
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   		The USART the ESP connected to
+ * 					  Copy_Data		  		The Data to be sent to the server
+ * 					  Copy_DataLength 		The length of Data to be sent to server
+ * 					  Copy_InitialLength	The initial Data length
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_SendDataWithCont(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength, u16 Copy_InitialLength);
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Esp_ContSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+ * \Description     : Continue Sending Data to the server
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   The USART the ESP connected to
+ * 					  Copy_Data		  The Data to be sent to the server
+ * 					  Copy_DataLength The length of Data to be sent to server
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_ContSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength);
+
+/******************************************************************************
+ * \Syntax          : ErrorState_t Esp_EndSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength)
+ * \Description     : last Sending Data to the server
+ *
+ * \Sync\Async      : Synchronous
+ * \Reentrancy      : Non Reentrant
+ * \Parameters (in) : Copy_UsartNum   The USART the ESP connected to
+ * 					  Copy_Data		  The Data to be sent to the server
+ * 					  Copy_DataLength The length of Data to be sent to server
+ * \Parameters (out): None
+ * \Return value:   : ErrorState_t
+ *******************************************************************************/
+ErrorState_t Esp_EndSendData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength);
+
+/******************************************************************************
  * \Syntax          : ErrorState_t Esp_ReceiveData(Esp_UsartNum Copy_UsartNum, u8* Copy_Data, u16 Copy_DataLength, Esp_Recv_t Copy_RecvType, void (*Copy_NotificationFunc)(void))
  * \Description     : Receive data from the server
  *

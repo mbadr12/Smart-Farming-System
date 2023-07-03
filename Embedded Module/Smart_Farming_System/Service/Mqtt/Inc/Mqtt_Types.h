@@ -62,9 +62,11 @@ typedef struct
 typedef struct
 {
 	char* TopicName;
-	u8* Msg;
+	char* Msg;
+	char* Telemetry;
 	Mqtt_Qos_t Qos;
 	u32 MsgLen;
+	u32 TelLen;
 }Mqtt_Publish_t;
 
 /**********************************************************************************************************************

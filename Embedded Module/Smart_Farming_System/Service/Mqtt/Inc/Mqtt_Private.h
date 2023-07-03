@@ -29,9 +29,9 @@
 
 #define PROTOCOL_LEVEL				0x04
 
-#define USERNAMEFLAG				0x6
+#define USERNAMEFLAG				1<<6
 
-#define PASSWORDFLAG				0x07
+#define PASSWORDFLAG				1<<7
 
 #define KAT							0xff
 

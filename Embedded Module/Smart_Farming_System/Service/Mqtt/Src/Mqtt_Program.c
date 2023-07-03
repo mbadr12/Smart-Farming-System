@@ -168,19 +168,19 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,Mqtt_Connect_t* Copy_Conn
 			/*Start with the Packet type*/
 			Mqtt_Packet[Mqtt_PacketIndex++]=CONNECT_PACKET;
 			/*Calculate the Remaining length*/
-			Local_Len=VAR_HEADER_LEN+UTF_LEN_BYTES + Mqtt_Strlen(Copy_ClientId);
+			Local_Len = VAR_HEADER_LEN + UTF_LEN_BYTES + Mqtt_Strlen(Copy_Connect->ClientId);
 			/*Add username and password to remaining length if there*/
 			if(Copy_Connect->UserName != NULL)
 			{
-				Local_Len+=(IDENTITY_BYTES+Mqtt_Strlen(Copy_Connect->UserName);
+				Local_Len += (IDENTITY_BYTES + Mqtt_Strlen(Copy_Connect->UserName));
 				/*Set username flag in connect flags*/
-				Local_ConnectFlag |= 1<< USERNAMEFLAG;
+				Local_ConnectFlag |=  USERNAMEFLAG;
 			}
 			if(Copy_Connect->Password != NULL)
 			{
-				Local_Len+=(IDENTITY_BYTES+Mqtt_Strlen(Copy_Connect->Password);
+				Local_Len += (IDENTITY_BYTES + Mqtt_Strlen(Copy_Connect->Password));
 				/*Set Password flag in connect flags*/
-				Local_ConnectFlag |= 1<<PASSWORDFLAG;
+				Local_ConnectFlag |= PASSWORDFLAG;
 			}
 			Mqtt_EncodeRemLen(Local_Len);
 			/*Put the variable Header*/
@@ -200,11 +200,11 @@ ErrorState_t Mqtt_Connect(Mqtt_UsartNum Copy_UsartNum ,Mqtt_Connect_t* Copy_Conn
 			Mqtt_Packet[Mqtt_PacketIndex++]=KAT;
 			/*the Pay-load*/
 			/*Put the Length of ClientId as MSB LSB*/
-			Local_Len=Mqtt_Strlen(Copy_ClientId);
+			Local_Len=Mqtt_Strlen(Copy_Connect->ClientId);
 			Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len>>BYTE);
 			Mqtt_Packet[Mqtt_PacketIndex++]=(u8)(Local_Len);
 			/*Put the ClientId*/
-			Mqtt_StrCopy((Mqtt_Packet+Mqtt_PacketIndex), Copy_ClientId);
+			Mqtt_StrCopy((Mqtt_Packet+Mqtt_PacketIndex), Copy_Connect->ClientId);
 			Mqtt_PacketIndex+=Local_Len;
 			if(Copy_Connect->UserName != NULL)
 			{
@@ -267,6 +267,10 @@ ErrorState_t Mqtt_Publish(Mqtt_UsartNum Copy_UsartNum, Mqtt_Publish_t* Copy_PubP
 		Mqtt_PacketIndex=0;
 		/*Calculate the Packet remaining length*/
 		Local_Len=UTF_LEN_BYTES+Mqtt_Strlen(Copy_PubPacket->TopicName)+Copy_PubPacket->MsgLen;
+		if(Copy_PubPacket->Telemetry != NULL)
+		{
+			Local_Len+=Copy_PubPacket->TelLen+5;
+		}
 		/*Fixed header*/
 		switch(Copy_PubPacket->Qos)
 		{
@@ -293,14 +297,31 @@ ErrorState_t Mqtt_Publish(Mqtt_UsartNum Copy_UsartNum, Mqtt_Publish_t* Copy_PubP
 			Mqtt_PubAck[2]=(u8)(Local_PacketId>>BYTE);
 			Mqtt_PubAck[3]=(u8)(Local_PacketId);
 		}
-		/*Put The Pay-load*/
-		for(Local_Len=0; Local_Len<Copy_PubPacket->MsgLen; Local_Len++)
+		/*Send The Headers using ESP*/
+		Local_Len=Mqtt_PacketIndex+Copy_PubPacket->MsgLen;
+		if(Copy_PubPacket->Telemetry != NULL)
 		{
-			Mqtt_Packet[Mqtt_PacketIndex++]=Copy_PubPacket->Msg[Local_Len];
+			Local_Len+=Copy_PubPacket->TelLen+5;
 		}
-		/*Send The Packet using ESP*/
-		Esp_SendData(Copy_UsartNum, Mqtt_Packet, Mqtt_PacketIndex);
-		if(Copy_PubPacket->Qos > 0)
+		Esp_SendDataWithCont(Copy_UsartNum, Mqtt_Packet , Local_Len ,Mqtt_PacketIndex);
+		/*Telemetry Send*/
+		if(Copy_PubPacket->Telemetry != NULL)
+		{
+			Esp_ContSendData(Copy_UsartNum, (u8*)"{\"", 2);
+			Esp_ContSendData(Copy_UsartNum, (u8*)Copy_PubPacket->Telemetry, Copy_PubPacket->TelLen);
+			Esp_ContSendData(Copy_UsartNum, (u8*)"\":", 2);
+		}
+		/*Message send*/
+		if(Copy_PubPacket->Telemetry != NULL)
+		{
+			Esp_ContSendData(Copy_UsartNum,(u8*) Copy_PubPacket->Msg, Copy_PubPacket->MsgLen);
+			Esp_EndSendData(Copy_UsartNum,(u8*) "}", 1);
+		}
+		else
+		{
+			Esp_EndSendData(Copy_UsartNum,(u8*) Copy_PubPacket->Msg, Copy_PubPacket->MsgLen);
+		}
+		if(Copy_PubPacket->Qos > MQTT_QOS0)
 		{
 			Local_ErrorState=Esp_ReceiveData(Copy_UsartNum, Mqtt_BrokerResponse, BROKER_REPLY_LEN, ESP_SYNCH, NULL);
 			Local_Result=Mqtt_ValidateResponse((Mqtt_BrokerResponse+DATA_INDEX), Mqtt_PubAck, PUB_ACK_LEN);
