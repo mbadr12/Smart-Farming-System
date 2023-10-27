@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F429xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Dcmi_Interface.h"
 #include "Dcmi_Config.h"
@@ -131,7 +131,7 @@ void DCMI_IRQHandler(void)
 	u8 Local_Counter=0;
 	for(Local_Counter=0;Local_Counter<5;Local_Counter++)
 	{
-		if(Get_Bit((DCMI->MIS),Local_Counter)==1)
+		if(GET_BIT((DCMI->MIS),Local_Counter)==1)
 		{
 			/*invoice the callback function*/
 			Dcmi_CallBackFunc[Local_Counter]();

@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F429xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Usart_Interface.h"
 #include "Usart_Config.h"
@@ -79,8 +79,8 @@ ErrorState_t Usart_Init(Usart_config_t* Copy_config)
 			/*Choose Data length*/
 			USART_CR1 |= (Copy_config->DataLength>>M);
 			/*Enable Transmitter and receiver*/
-			Set_Bit(USART_CR1,TE);
-			Set_Bit(USART_CR1,RE);
+			SET_BIT(USART_CR1,TE);
+			SET_BIT(USART_CR1,RE);
 			/*Choose number of Stop bits*/
 			USART_CR2 |= (Copy_config->StopBitNo<<STOP);
 			/*Choose Transfer mode*/
@@ -88,7 +88,7 @@ ErrorState_t Usart_Init(Usart_config_t* Copy_config)
 			/*Choose the baud rate*/
 			USART_BRR = Usart_BRRRegisterValue(Copy_config->BuadRate);
 			/*Enable USART*/
-			Set_Bit(USART_CR1,UE);
+			SET_BIT(USART_CR1,UE);
 		}
 	}
 	return Local_ErrorState;
@@ -121,7 +121,7 @@ ErrorState_t Usart_SendCharSynch(Usart_Number_t Copy_UsartNum, u16 Copy_Data)
 			/*Make the peripheral Busy*/
 			Usart_State[Copy_UsartNum] = BUSY;
 			/*Busy waiting for Data register empty*/
-			while((Get_Bit(USART_SR,TXE)==0) && (Local_Counter < USART_TIME_OUT))
+			while((GET_BIT(USART_SR,TXE)==0) && (Local_Counter < USART_TIME_OUT))
 			{
 				Local_Counter++;
 			}
@@ -132,7 +132,7 @@ ErrorState_t Usart_SendCharSynch(Usart_Number_t Copy_UsartNum, u16 Copy_Data)
 			else
 			{
 				/*Clear the transmit complete flag*/
-				Clr_Bit(USART_SR,TC);
+				CLR_BIT(USART_SR,TC);
 				/*send data*/
 				USART_DR=Copy_Data;
 				/*Make USART IDLE*/
@@ -185,7 +185,7 @@ ErrorState_t Usart_SendCharASynch(Usart_Number_t Copy_UsartNum, u16 Copy_Data , 
 				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
 				Usart_Data[Copy_UsartNum]=Copy_Data;
 				/*USART Data Empty Interrupt Enable*/
-				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
+				SET_BIT(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
 			}
 		}
 		else
@@ -272,7 +272,7 @@ ErrorState_t Usart_SendStringASynch(Usart_Number_t Copy_UsartNum, char* Copy_Str
 				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
 				Usart_pData[Copy_UsartNum]=Copy_String;
 				/*USART Data Empty Interrupt Enable*/
-				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
+				SET_BIT(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
 			}
 		}
 		else
@@ -363,7 +363,7 @@ ErrorState_t Usart_SendBufferASynch(Usart_Number_t Copy_UsartNum, char* Copy_Buf
 				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
 				Usart_pData[Copy_UsartNum]=Copy_Buffer;
 				/*USART Data Empty Interrupt Enable*/
-				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
+				SET_BIT(Usart_Arr[Copy_UsartNum]->CR1,TXEIE);
 			}
 		}
 		else
@@ -406,7 +406,7 @@ ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Data)
 				/*Make the peripheral Busy*/
 				Usart_State[Copy_UsartNum] = BUSY;
 				/*Busy waiting for Read Data register Not empty*/
-				while((Get_Bit(USART_SR,RXNE)==0) && (Local_Counter<USART_TIME_OUT))
+				while((GET_BIT(USART_SR,RXNE)==0) && (Local_Counter<USART_TIME_OUT))
 				{
 					Local_Counter++;
 				}
@@ -419,7 +419,7 @@ ErrorState_t Usart_ReceiveCharSynch(Usart_Number_t Copy_UsartNum, u8* Copy_Data)
 				else
 				{
 					/*Clear Read Data register Not empty flag*/
-					Clr_Bit(USART_SR,RXNE);
+					CLR_BIT(USART_SR,RXNE);
 					/*Receive data*/
 					*Copy_Data=USART_DR;
 					/*Make USART IDLE*/
@@ -472,7 +472,7 @@ ErrorState_t Usart_ReceiveCharASynch(Usart_Number_t Copy_UsartNum, u16* Copy_Dat
 				Usart_CallBackFunc[Copy_UsartNum]=Copy_NotificationFunc;
 				Usart_pData[Copy_UsartNum]=(char*)Copy_Data;
 				/*USART RXNE interrupt Enable*/
-				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
+				SET_BIT(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
 			}
 		}
 		else
@@ -568,7 +568,7 @@ ErrorState_t Usart_ReceiveBufferASynch(Usart_Number_t Copy_UsartNum, u8* Copy_Bu
 				Usart_pData[Copy_UsartNum]=(char*)Copy_Buffer;
 				Usart_BufferSize=Copy_BufferSize;
 				/*USART RXNE interrupt Enable*/
-				Set_Bit(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
+				SET_BIT(Usart_Arr[Copy_UsartNum]->CR1,RXNEIE);
 			}
 		}
 		else
@@ -622,7 +622,7 @@ void USART1_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_1]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[USART_1]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[USART_1]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_1] != NULL)
 		{
@@ -639,7 +639,7 @@ void USART1_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_1]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_1]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_1]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_1] != NULL)
 			{
@@ -658,7 +658,7 @@ void USART1_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_1]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_1]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_1]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_1] != NULL)
 			{
@@ -674,7 +674,7 @@ void USART1_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_1]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[USART_1]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[USART_1]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_1] != NULL)
 		{
@@ -692,7 +692,7 @@ void USART1_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_1]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[USART_1]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[USART_1]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_1] != NULL)
 			{
@@ -722,7 +722,7 @@ void USART2_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_2]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[USART_2]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[USART_2]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_2] != NULL)
 		{
@@ -739,7 +739,7 @@ void USART2_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_2]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_2]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_2]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_2] != NULL)
 			{
@@ -758,7 +758,7 @@ void USART2_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_2]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_2]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_2]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_2] != NULL)
 			{
@@ -774,7 +774,7 @@ void USART2_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_2]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[USART_2]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[USART_2]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_2] != NULL)
 		{
@@ -792,7 +792,7 @@ void USART2_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_2]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[USART_2]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[USART_2]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_2] != NULL)
 			{
@@ -822,7 +822,7 @@ void USART3_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_3]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[USART_3]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[USART_3]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_3] != NULL)
 		{
@@ -839,7 +839,7 @@ void USART3_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_3]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_3]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_3]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_3] != NULL)
 			{
@@ -858,7 +858,7 @@ void USART3_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_3]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_3]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_3]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_3] != NULL)
 			{
@@ -874,7 +874,7 @@ void USART3_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_3]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[USART_3]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[USART_3]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_3] != NULL)
 		{
@@ -892,7 +892,7 @@ void USART3_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_3]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[USART_3]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[USART_3]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_3] != NULL)
 			{
@@ -922,7 +922,7 @@ void UART4_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[UART_4]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[UART_4]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[UART_4]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[UART_4] != NULL)
 		{
@@ -939,7 +939,7 @@ void UART4_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_4]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[UART_4]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[UART_4]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_4] != NULL)
 			{
@@ -958,7 +958,7 @@ void UART4_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_4]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[UART_4]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[UART_4]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_4] != NULL)
 			{
@@ -974,7 +974,7 @@ void UART4_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[UART_4]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[UART_4]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[UART_4]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[UART_4] != NULL)
 		{
@@ -992,7 +992,7 @@ void UART4_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_4]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[UART_4]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[UART_4]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_4] != NULL)
 			{
@@ -1022,7 +1022,7 @@ void UART5_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[UART_5]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[UART_5]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[UART_5]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[UART_5] != NULL)
 		{
@@ -1039,7 +1039,7 @@ void UART5_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_5]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[UART_5]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[UART_5]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_5] != NULL)
 			{
@@ -1058,7 +1058,7 @@ void UART5_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_5]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[UART_5]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[UART_5]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_5] != NULL)
 			{
@@ -1074,7 +1074,7 @@ void UART5_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[UART_5]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[UART_5]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[UART_5]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[UART_5] != NULL)
 		{
@@ -1092,7 +1092,7 @@ void UART5_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[UART_5]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[UART_5]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[UART_5]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[UART_5] != NULL)
 			{
@@ -1122,7 +1122,7 @@ void USART6_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_6]=IDLE;
 		/*Disable USART Data Empty interrupt*/
-		Clr_Bit(Usart_Arr[USART_6]->CR1,TXEIE);
+		CLR_BIT(Usart_Arr[USART_6]->CR1,TXEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_6] != NULL)
 		{
@@ -1139,7 +1139,7 @@ void USART6_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_6]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_6]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_6]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_6] != NULL)
 			{
@@ -1158,7 +1158,7 @@ void USART6_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_6]=IDLE;
 			/*Disable USART Data Empty interrupt*/
-			Clr_Bit(Usart_Arr[USART_6]->CR1,TXEIE);
+			CLR_BIT(Usart_Arr[USART_6]->CR1,TXEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_6] != NULL)
 			{
@@ -1174,7 +1174,7 @@ void USART6_IRQHandler(void)
 		/*Make Peripheral idle*/
 		Usart_State[USART_6]=IDLE;
 		/*USART RXNE interrupt Disable*/
-		Set_Bit(Usart_Arr[USART_6]->CR1,RXNEIE);
+		SET_BIT(Usart_Arr[USART_6]->CR1,RXNEIE);
 		/*Invoke the call back function*/
 		if(Usart_CallBackFunc[USART_6] != NULL)
 		{
@@ -1192,7 +1192,7 @@ void USART6_IRQHandler(void)
 			/*Make Peripheral idle*/
 			Usart_State[USART_6]=IDLE;
 			/*USART RXNE interrupt Disable*/
-			Set_Bit(Usart_Arr[USART_6]->CR1,RXNEIE);
+			SET_BIT(Usart_Arr[USART_6]->CR1,RXNEIE);
 			/*Invoke the call back function*/
 			if(Usart_CallBackFunc[USART_6] != NULL)
 			{

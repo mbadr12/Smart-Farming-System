@@ -212,7 +212,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             if(Copy_ClkState == ON)
             {
                 /* Configure PLL */
-                RCC_InitPLL(Copy_PllConfigPtr);
+                Rcc_InitPLL(Copy_PllConfigPtr);
                 /* Enable PLL */
                 SET_BIT(RCC->CR, RCC_CR_PLLON);
                 /*wait until PLL is ready*/
@@ -229,7 +229,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             if(Copy_ClkState == ON)
             {
                 /* Configure PLLI2S */
-                RCC_InitPLL(Copy_PllConfigPtr);
+                Rcc_InitPLL(Copy_PllConfigPtr);
                 /* Enable PLLI2S */
                 SET_BIT(RCC->CR, RCC_CR_PLLI2SON);
                 /*wait until PLLI2S is ready*/
@@ -248,7 +248,7 @@ ErrorState_t Rcc_SetClkState(Rcc_ClkType_t Copy_ClkType, bool Copy_ClkState, Rcc
             if(Copy_ClkState == ON)
             {
                 /* Configure PLLSAI */
-                RCC_InitPLL(Copy_PllConfigPtr);
+                Rcc_InitPLL(Copy_PllConfigPtr);
                 /* Enable PLLSAI */
                 SET_BIT(RCC->CR, RCC_CR_PLLSAION);
                 /*wait until PLLSAI is ready*/

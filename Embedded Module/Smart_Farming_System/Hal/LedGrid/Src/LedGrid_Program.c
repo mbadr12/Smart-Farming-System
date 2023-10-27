@@ -17,7 +17,6 @@
 #include "Std_Types.h"
 
 #include "LedGrid_Private.h"
-#include "LedGrid_Config.h"
 #include "LedGrid_Interface.h"
 
 /**********************************************************************************************************************

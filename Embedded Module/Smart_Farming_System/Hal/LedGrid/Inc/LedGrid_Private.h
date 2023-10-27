@@ -18,17 +18,6 @@
  *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
 
-/******************************************************************************
-* \Syntax          : static bool IsLedGridConfigValid(LedGrid_Config_t *Copy_LedGridConfig)
-* \Description     : Check the LED grid configurations' values
-*
-* \Sync\Async      : Synchronous
-* \Reentrancy      : Non Reentrant
-* \Parameters (in) : Copy_LedGridConfig    Pointer to structure of LedGrid configuration
-* \Parameters (out): None
-* \Return value:   : bool
-*******************************************************************************/
-static bool IsLedGridConfigValid(LedGrid_Config_t *Copy_LedGridConfig);
 
 #endif  /* LEDGRID_PRIVATE_H */
 
