@@ -77,7 +77,7 @@ ErrorState_t Nvic_GetPendingIRQ(Nvic_IRQn_t Copy_IRQ, bool *pState){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    *pState = Get_Bit(NVIC->ISPR[Local_RegOffset], Local_BitOffset);
+    *pState = GET_BIT(NVIC->ISPR[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }
@@ -90,7 +90,7 @@ ErrorState_t Nvic_GetActive(Nvic_IRQn_t Copy_IRQ, bool *pState){
 
     u8 Local_RegOffset = Copy_IRQ / WORD_LENGTH_BITS;
     u8 Local_BitOffset = Copy_IRQ % WORD_LENGTH_BITS;
-    *pState = Get_Bit(NVIC->IABR[Local_RegOffset], Local_BitOffset);
+    *pState = GET_BIT(NVIC->IABR[Local_RegOffset], Local_BitOffset);
 
     return E_OK;
 }

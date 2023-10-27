@@ -16,7 +16,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F429xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Dma_Private.h"
 #include "Dma_Interface.h"
@@ -58,7 +58,7 @@ ErrorState_t Dma_Init(Dma_Config_t* Copy_DmaConfig)
 			/*Reset the control register and disable stream*/
 			DMA_CONTROL_REG=0;
 			/*polling in the enable bit to make sure it has been reset*/
-			while(Get_Bit(DMA_CONTROL_REG,EN_BIT)==1);
+			while(GET_BIT(DMA_CONTROL_REG,EN_BIT)==1);
 			/*select the channel*/
 			DMA_CONTROL_REG |= (Copy_DmaConfig->Channel<<CH_SELECT);
 			/*configure the priority of the stream*/
@@ -67,7 +67,7 @@ ErrorState_t Dma_Init(Dma_Config_t* Copy_DmaConfig)
 			if(Copy_DmaConfig->StreamMode == DMA_STREAM_FIFO)
 			{
 				/*Disable the direct mode*/
-				Set_Bit(DMA_FIFO_REG,FIFO_SELECT);
+				SET_BIT(DMA_FIFO_REG,FIFO_SELECT);
 				/*select FIFO threshold*/
 				DMA_FIFO_REG &= FIFO_THRESHOLD_MASK;
 				DMA_FIFO_REG |= Copy_DmaConfig->FifoThreshold;
@@ -75,7 +75,7 @@ ErrorState_t Dma_Init(Dma_Config_t* Copy_DmaConfig)
 			else if(Copy_DmaConfig->StreamMode == DMA_STREAM_DIRECT)
 			{
 				/*Disable the direct mode*/
-				Clr_Bit(DMA_FIFO_REG,FIFO_SELECT);
+				CLR_BIT(DMA_FIFO_REG,FIFO_SELECT);
 			}
 			else
 			{
@@ -137,16 +137,16 @@ ErrorState_t Dma_StreamStartSynch(Dma_StreamStartTrans* Copy_StartTrans)
 		/*put the Number of transactions*/
 		DMA_NUM_DATA_REG = Copy_StartTrans->NumberOfTrans;
 		/*Enable the DMA*/
-		Set_Bit(DMA_CTRL_REG,EN_BIT);
+		SET_BIT(DMA_CTRL_REG,EN_BIT);
 		/*polling until the transfer complete*/
 		Local_RegNum=Copy_StartTrans->Stream/4;
 		Local_StreamNum=Copy_StartTrans->Stream%4;
 		switch(Local_StreamNum)
 		{
-		case DMA_STREAM_0: while((Get_Bit(DMA_ISR_REG,TCF0_SELECT))==0); DMA_IFCR_REG= 1<<TC0_SELECT; break;
-		case DMA_STREAM_1: while((Get_Bit(DMA_ISR_REG,TCF1_SELECT))==0); DMA_IFCR_REG= 1<<TC1_SELECT; break;
-		case DMA_STREAM_2: while((Get_Bit(DMA_ISR_REG,TCF2_SELECT))==0); DMA_IFCR_REG= 1<<TC2_SELECT; break;
-		case DMA_STREAM_3: while((Get_Bit(DMA_ISR_REG,TCF3_SELECT))==0); DMA_IFCR_REG= 1<<TC3_SELECT; break;
+		case DMA_STREAM_0: while((GET_BIT(DMA_ISR_REG,TCF0_SELECT))==0); DMA_IFCR_REG= 1<<TC0_SELECT; break;
+		case DMA_STREAM_1: while((GET_BIT(DMA_ISR_REG,TCF1_SELECT))==0); DMA_IFCR_REG= 1<<TC1_SELECT; break;
+		case DMA_STREAM_2: while((GET_BIT(DMA_ISR_REG,TCF2_SELECT))==0); DMA_IFCR_REG= 1<<TC2_SELECT; break;
+		case DMA_STREAM_3: while((GET_BIT(DMA_ISR_REG,TCF3_SELECT))==0); DMA_IFCR_REG= 1<<TC3_SELECT; break;
 		default: Local_ErrorState=E_WRONG_OPTION;
 		}
 	}
@@ -189,11 +189,11 @@ ErrorState_t Dma_StreamStartASynch(Dma_StreamStartTrans* Copy_StartTrans, void(*
 		/*put the Number of transactions*/
 		DMA_NUM_DATA_REG = Copy_StartTrans->NumberOfTrans;
 		/*Turn on the TCIE*/
-		Set_Bit(DMA_CTRL_REG,TRANS_COMPLETE_SELECT);
+		SET_BIT(DMA_CTRL_REG,TRANS_COMPLETE_SELECT);
 		/*Pass the Callback function to global pointer*/
 		Dma_CallBackFuncArr[Copy_StartTrans->DMA_Number][Copy_StartTrans->Stream]=Copy_NotificationFunc;
 		/*Enable the DMA*/
-		Set_Bit(DMA_CTRL_REG,EN_BIT);
+		SET_BIT(DMA_CTRL_REG,EN_BIT);
 	}
 
 	return Local_ErrorState;
@@ -212,8 +212,8 @@ ErrorState_t Dma_StreamStartASynch(Dma_StreamStartTrans* Copy_StartTrans, void(*
  *******************************************************************************/
 void DMA_StopStream(Dma_Num Copy_DmaNumber, Dma_StreamNum Copy_StreamNum)
 {
-	Clr_Bit((Dma_Arr[Copy_DmaNumber]->Stream[Copy_StreamNum].CR),EN_BIT);
-	while(Get_Bit((Dma_Arr[Copy_DmaNumber]->Stream[Copy_StreamNum].CR),EN_BIT) == 1);
+	CLR_BIT((Dma_Arr[Copy_DmaNumber]->Stream[Copy_StreamNum].CR),EN_BIT);
+	while(GET_BIT((Dma_Arr[Copy_DmaNumber]->Stream[Copy_StreamNum].CR),EN_BIT) == 1);
 }
 
 /******************************************************************************

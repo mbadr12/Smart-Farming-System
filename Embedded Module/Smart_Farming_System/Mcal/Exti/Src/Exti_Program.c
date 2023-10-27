@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F429xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Exti_Interface.h"
 #include "Exti_Private.h"

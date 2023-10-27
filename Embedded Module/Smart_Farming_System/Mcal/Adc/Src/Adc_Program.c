@@ -15,7 +15,7 @@
  *  INCLUDES
  *********************************************************************************************************************/
 #include "STM32F429xx.h"
-#include "BIT_MATH.h"
+#include "Bit_Math.h"
 
 #include "Adc_Interface.h"
 #include "Adc_Private.h"
@@ -124,16 +124,16 @@ ErrorState_t Adc_StartConversionSynch(Adc_ConversionConfig_t* Copy_ConvConfig, u
 				{
 				case ADC_REGULAR_CHANNEL:
 					/*make sure that the interrupt is disabled */
-					Clr_Bit(ADC_REG->CR[CR1],EOCIE);
+					CLR_BIT(ADC_REG->CR[CR1],EOCIE);
 					/*Put the channel as first channel in the sequence of channels*/
 					ADC_REG->SQR[SQR1]=0;
 					ADC_REG->SQR[SQR3]=0;
 					ADC_REG->SQR[SQR3] |=Copy_ConvConfig->Channel;
 					/*choose the conversion trigger*/
 					ADC_REG->CR[CR2] &= TRIGGER_MASK;
-					Set_Bit(ADC_REG->CR[CR2],SWSTART);
+					SET_BIT(ADC_REG->CR[CR2],SWSTART);
 					/*busy waiting in the End of conversion flag*/
-					while((Get_Bit(ADC_REG->SR,EOC_FLAG)==0) && (Local_Counter< ADC_TIME_OUT))
+					while((GET_BIT(ADC_REG->SR,EOC_FLAG)==0) && (Local_Counter< ADC_TIME_OUT))
 					{
 						Local_Counter++;
 					}
@@ -147,15 +147,15 @@ ErrorState_t Adc_StartConversionSynch(Adc_ConversionConfig_t* Copy_ConvConfig, u
 					}break;
 				case ADC_INJECTED_CHANNEL:
 					/*make sure that the interrupt is disabled */
-					Clr_Bit(ADC_REG->CR[CR1],JEOCIE);
+					CLR_BIT(ADC_REG->CR[CR1],JEOCIE);
 					/*Put the channel as first channel in the sequence of channels*/
 					ADC_REG->JSQR=0;
 					ADC_REG->JSQR |= Copy_ConvConfig->Channel<<JSQ4;
 					/*choose the conversion trigger*/
 					ADC_REG->CR[CR2] &= INJ_TRIGGER_MASK;
-					Set_Bit(ADC_REG->CR[CR2],JSWSTART);
+					SET_BIT(ADC_REG->CR[CR2],JSWSTART);
 					/*busy waiting in the End of conversion flag*/
-					while((Get_Bit(ADC_REG->SR,JEOC_FLAG)==0) && (Local_Counter< ADC_TIME_OUT))
+					while((GET_BIT(ADC_REG->SR,JEOC_FLAG)==0) && (Local_Counter< ADC_TIME_OUT))
 					{
 						Local_Counter++;
 					}
@@ -168,7 +168,7 @@ ErrorState_t Adc_StartConversionSynch(Adc_ConversionConfig_t* Copy_ConvConfig, u
 						/*get the reading*/
 						*Copy_Reading=ADC_REG->JDR[0];
 						/*clear the end of conversion flag*/
-						Clr_Bit(ADC_REG->SR,JEOC);
+						CLR_BIT(ADC_REG->SR,JEOC);
 					}break;
 				default: Local_ErrorState=E_WRONG_OPTION;
 				}
@@ -242,12 +242,12 @@ ErrorState_t Adc_StartConversionAsynch(Adc_ConversionConfig_t* Copy_ConvConfig, 
 					ADC_REG->CR[CR2] &= TRIGGER_MASK;
 					switch(Copy_ConvConfig->TriggerType)
 					{
-					case ADC_SW_TRIGGER: Set_Bit(ADC_REG->CR[CR2],SWSTART); break;
+					case ADC_SW_TRIGGER: SET_BIT(ADC_REG->CR[CR2],SWSTART); break;
 					case ADC_EXT_TRIGGER: ADC_REG->CR[CR2] |= Copy_ConvConfig->Sense<<EXT_TRG_SENSE | Copy_ConvConfig->ExtTrigger<<EXT_TRG_SELECT; break;
 					default: Local_ErrorState=E_WRONG_OPTION; break;
 					}
 					/*the interrupt is enabled */
-					Set_Bit(ADC_REG->CR[CR1],EOCIE); break;
+					SET_BIT(ADC_REG->CR[CR1],EOCIE); break;
 					case ADC_INJECTED_CHANNEL:
 						/*Put the channel as first channel in the sequence of channels*/
 						ADC_REG->JSQR=0;
@@ -256,12 +256,12 @@ ErrorState_t Adc_StartConversionAsynch(Adc_ConversionConfig_t* Copy_ConvConfig, 
 						ADC_REG->CR[CR2] &= INJ_TRIGGER_MASK;
 						switch(Copy_ConvConfig->TriggerType)
 						{
-						case ADC_SW_TRIGGER: Set_Bit(ADC_REG->CR[CR2],JSWSTART); break;
+						case ADC_SW_TRIGGER: SET_BIT(ADC_REG->CR[CR2],JSWSTART); break;
 						case ADC_EXT_TRIGGER: ADC_REG->CR[CR2] |= (Copy_ConvConfig->Sense<<INJ_EXT_TRG_SENSE) | (Copy_ConvConfig->ExtTrigger<<INJ_EXT_TRG_SELECT); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 						}						
 						/*the interrupt is enable */
-						Set_Bit(ADC_REG->CR[CR1],JEOCIE); break;
+						SET_BIT(ADC_REG->CR[CR1],JEOCIE); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 				}
 			}
@@ -338,19 +338,19 @@ ErrorState_t Adc_StartChainConversionSynch(Adc_ChainConvConfig_t* Copy_ChainConf
 						}
 						switch(Copy_ChainConfig->ConvType)
 						{
-						case ADC_CONT: 		Set_Bit(ADC_CH_REG->CR[CR2],CONT); Clr_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR1],DISCEN); break;
-						case ADC_SCAN: 		Set_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR2],CONT); Clr_Bit(ADC_CH_REG->CR[CR1],DISCEN); break;
+						case ADC_CONT: 		SET_BIT(ADC_CH_REG->CR[CR2],CONT); CLR_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR1],DISCEN); break;
+						case ADC_SCAN: 		SET_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR2],CONT); CLR_BIT(ADC_CH_REG->CR[CR1],DISCEN); break;
 						default: Local_ErrorState=E_WRONG_OPTION; break;
 						}
 						/*Make sure the interrupt is closed*/
-						Clr_Bit(ADC_CH_REG->CR[CR1],EOCIE);
+						CLR_BIT(ADC_CH_REG->CR[CR1],EOCIE);
 						/*make the EOC flag raise at the end of every conversion*/
-						Set_Bit(ADC_CH_REG->CR[CR2],EOCS);
+						SET_BIT(ADC_CH_REG->CR[CR2],EOCS);
 						/*fire the SW conversion*/
-						Set_Bit(ADC_CH_REG->CR[CR2],SWSTART);
+						SET_BIT(ADC_CH_REG->CR[CR2],SWSTART);
 						for(Local_Counter=0; Local_Counter<CONV_NUM; Local_Counter++)
 						{
-							while((Get_Bit(ADC_CH_REG->SR,EOC_FLAG)==0) && (Local_TimeEclapsed< ADC_TIME_OUT))
+							while((GET_BIT(ADC_CH_REG->SR,EOC_FLAG)==0) && (Local_TimeEclapsed< ADC_TIME_OUT))
 							{
 								Local_TimeEclapsed++;
 							}
@@ -381,14 +381,14 @@ ErrorState_t Adc_StartChainConversionSynch(Adc_ChainConvConfig_t* Copy_ChainConf
 						}
 						switch(Copy_ChainConfig->ConvType)
 						{
-						case ADC_SCAN: Set_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR1],JDISCEN); break;
+						case ADC_SCAN: SET_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR1],JDISCEN); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 						}
 						/*make sure the interrupt id closed*/
-						Clr_Bit(ADC_CH_REG->CR[CR1],JEOCIE);
+						CLR_BIT(ADC_CH_REG->CR[CR1],JEOCIE);
 						/*Fire the SW trigger to start conversion*/
-						Set_Bit(ADC_CH_REG->CR[CR2],JSWSTART);
-						while((Get_Bit(ADC_CH_REG->SR,JEOC_FLAG)==0) && (Local_TimeEclapsed< ADC_TIME_OUT))
+						SET_BIT(ADC_CH_REG->CR[CR2],JSWSTART);
+						while((GET_BIT(ADC_CH_REG->SR,JEOC_FLAG)==0) && (Local_TimeEclapsed< ADC_TIME_OUT))
 						{
 							Local_TimeEclapsed++;
 						}
@@ -403,7 +403,7 @@ ErrorState_t Adc_StartChainConversionSynch(Adc_ChainConvConfig_t* Copy_ChainConf
 								Copy_Reading[Local_Counter]=ADC_CH_REG->JDR[Local_Counter];
 							}
 							/*clear JEOC flag*/
-							Clr_Bit(ADC_CH_REG->SR,JEOC);
+							CLR_BIT(ADC_CH_REG->SR,JEOC);
 						}
 					}break;
 				default: Local_ErrorState=E_WRONG_OPTION;
@@ -489,9 +489,9 @@ ErrorState_t Adc_StartChainConversionAsynch(Adc_ChainConvConfig_t* Copy_ChainCon
 						}
 						switch(Copy_ChainConfig->ConvType)
 						{
-						case ADC_CONT: 		Set_Bit(ADC_CH_REG->CR[CR2],CONT); Clr_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR1],DISCEN); break;
-						case ADC_SCAN: 		Set_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR2],CONT); Clr_Bit(ADC_CH_REG->CR[CR1],DISCEN); break;
-						case ADC_DISCONT:	Set_Bit(ADC_CH_REG->CR[CR1],DISCEN); Clr_Bit(ADC_CH_REG->CR[CR2],CONT); Clr_Bit(ADC_CH_REG->CR[CR1],SCAN);
+						case ADC_CONT: 		SET_BIT(ADC_CH_REG->CR[CR2],CONT); CLR_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR1],DISCEN); break;
+						case ADC_SCAN: 		SET_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR2],CONT); CLR_BIT(ADC_CH_REG->CR[CR1],DISCEN); break;
+						case ADC_DISCONT:	SET_BIT(ADC_CH_REG->CR[CR1],DISCEN); CLR_BIT(ADC_CH_REG->CR[CR2],CONT); CLR_BIT(ADC_CH_REG->CR[CR1],SCAN);
 						if(CONV_NUM <= MAX_DISCEN)
 						{
 							ADC_CH_REG->CR[CR1] |= (CONV_NUM-1)<<DISCNUM;
@@ -503,14 +503,14 @@ ErrorState_t Adc_StartChainConversionAsynch(Adc_ChainConvConfig_t* Copy_ChainCon
 						default: Local_ErrorState=E_WRONG_OPTION; break;
 						}
 						/*make the EOC flag raise at the end of every conversion*/
-						Set_Bit(ADC_CH_REG->CR[CR2],EOCS);
+						SET_BIT(ADC_CH_REG->CR[CR2],EOCS);
 						/*Enable the interrupt*/
-						Set_Bit(ADC_CH_REG->CR[CR1],EOCIE);
+						SET_BIT(ADC_CH_REG->CR[CR1],EOCIE);
 						/*choose the conversion trigger*/
 						ADC_CH_REG->CR[CR2] &= TRIGGER_MASK;
 						switch(Copy_ChainConfig->TriggerType)
 						{
-						case ADC_SW_TRIGGER: Set_Bit(ADC_CH_REG->CR[CR2],SWSTART); break;
+						case ADC_SW_TRIGGER: SET_BIT(ADC_CH_REG->CR[CR2],SWSTART); break;
 						case ADC_EXT_TRIGGER: ADC_CH_REG->CR[CR2] |= Copy_ChainConfig->Sense<<EXT_TRG_SENSE | Copy_ChainConfig->ExtTrigger<<EXT_TRG_SELECT; break;
 						default: Local_ErrorState=E_WRONG_OPTION; break;
 						}
@@ -531,17 +531,17 @@ ErrorState_t Adc_StartChainConversionAsynch(Adc_ChainConvConfig_t* Copy_ChainCon
 						}
 						switch(Copy_ChainConfig->ConvType)
 						{
-						case ADC_SCAN: 		Set_Bit(ADC_CH_REG->CR[CR1],SCAN); Clr_Bit(ADC_CH_REG->CR[CR1],JDISCEN); break;
-						case ADC_DISCONT:	Set_Bit(ADC_CH_REG->CR[CR1],JDISCEN); Clr_Bit(ADC_CH_REG->CR[CR1],SCAN); break;
+						case ADC_SCAN: 		SET_BIT(ADC_CH_REG->CR[CR1],SCAN); CLR_BIT(ADC_CH_REG->CR[CR1],JDISCEN); break;
+						case ADC_DISCONT:	SET_BIT(ADC_CH_REG->CR[CR1],JDISCEN); CLR_BIT(ADC_CH_REG->CR[CR1],SCAN); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 						}
 						/*Enable the interrupt*/
-						Set_Bit(ADC_CH_REG->CR[CR1],JEOCIE);
+						SET_BIT(ADC_CH_REG->CR[CR1],JEOCIE);
 						/*choose the conversion trigger*/
 						ADC_CH_REG->CR[CR2] &= INJ_TRIGGER_MASK;
 						switch(Copy_ChainConfig->TriggerType)
 						{
-						case ADC_SW_TRIGGER: Set_Bit(ADC_CH_REG->CR[CR2],JSWSTART); break;
+						case ADC_SW_TRIGGER: SET_BIT(ADC_CH_REG->CR[CR2],JSWSTART); break;
 						case ADC_EXT_TRIGGER: ADC_CH_REG->CR[CR2] |= (Copy_ChainConfig->Sense<<INJ_EXT_TRG_SENSE) | (Copy_ChainConfig->ExtTrigger<<INJ_EXT_TRG_SELECT); break;
 						default: Local_ErrorState=E_WRONG_OPTION;
 						}
@@ -576,7 +576,7 @@ void ADC_IRQHandler(void)
 	/*check Which ADC is the Source of interrupt*/
 	for(Local_Counter=0;Local_Counter<ADCS_NUM;Local_Counter++)
 	{
-		if((Get_Bit(Adc_Arr[Local_Counter]->SR,EOC_FLAG)==1) || (Get_Bit(Adc_Arr[Local_Counter]->SR,JEOC_FLAG)==1))
+		if((GET_BIT(Adc_Arr[Local_Counter]->SR,EOC_FLAG)==1) || (GET_BIT(Adc_Arr[Local_Counter]->SR,JEOC_FLAG)==1))
 		{
 			/*check for the source of interrupt*/
 			if(Adc_ISRSrc[Local_Counter]== SINGLE_CONVERSION)
@@ -585,7 +585,7 @@ void ADC_IRQHandler(void)
 				switch(Adc_ChType[Local_Counter])
 				{
 				case ADC_REGULAR_CHANNEL:  *Adc_Result[Local_Counter]=Adc_Arr[Local_Counter]->DR; break;
-				case ADC_INJECTED_CHANNEL: *Adc_Result[Local_Counter]=Adc_Arr[Local_Counter]->JDR[0]; Clr_Bit(Adc_Arr[Local_Counter]->SR,JEOC); break;
+				case ADC_INJECTED_CHANNEL: *Adc_Result[Local_Counter]=Adc_Arr[Local_Counter]->JDR[0]; CLR_BIT(Adc_Arr[Local_Counter]->SR,JEOC); break;
 				}
 				if(Adc_CallBackFunc[Local_Counter] != NULL)
 				{
@@ -623,7 +623,7 @@ void ADC_IRQHandler(void)
 					{
 						Adc_CallBackFunc[Local_Counter]();
 					}
-					Clr_Bit(Adc_Arr[Local_Counter]->SR,JEOC); break;
+					CLR_BIT(Adc_Arr[Local_Counter]->SR,JEOC); break;
 				}
 			}
 		}
